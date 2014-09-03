@@ -1,0 +1,56 @@
+package metrics;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.EigenDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+
+public class Eigenvalues {
+	
+	private Eigenvalues() { }
+	
+	public static double[] calculate(int[][] matrix) {
+		double[][] realValues = new double[matrix.length][matrix.length];
+		for (int i = 0; i < matrix.length; i++) {
+			for (int j = 0; j < matrix[i].length; j++) {
+				realValues[i][j] = matrix[i][j];
+			}
+		}
+		RealMatrix rm = new Array2DRowRealMatrix(realValues);
+		double[] eigenValues = null;
+		try {
+			EigenDecomposition solver = new EigenDecomposition(rm, 0);
+			eigenValues = solver.getRealEigenvalues();
+			double aux;
+			for (int i = 0; i < eigenValues.length; i++) {
+				for (int j = i; j < eigenValues.length; j++) {
+					if (eigenValues[j] < eigenValues[i]) {
+						aux = eigenValues[i];
+						eigenValues[i] = eigenValues[j];
+						eigenValues[j] = aux;
+					}
+				}
+			}
+		} catch (Exception e) {	}
+		return eigenValues;
+	}
+	
+	public static double[] calculate(double[][] matrix) {
+		RealMatrix rm = new Array2DRowRealMatrix(matrix);
+		double[] eigenValues = null;
+		try {
+			EigenDecomposition solver = new EigenDecomposition(rm, 0);
+			eigenValues = solver.getRealEigenvalues();
+			double aux;
+			for (int i = 0; i < eigenValues.length; i++) {
+				for (int j = i; j < eigenValues.length; j++) {
+					if (eigenValues[j] < eigenValues[i]) {
+						aux = eigenValues[i];
+						eigenValues[i] = eigenValues[j];
+						eigenValues[j] = aux;
+					}
+				}
+			}
+		} catch (Exception e) {	}
+		return eigenValues;
+	}
+}
