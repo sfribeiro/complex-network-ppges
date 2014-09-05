@@ -1,5 +1,6 @@
 package utils;
 public class DegreeMatrix {
+	
 	public static int[][] calculate(int[][] matrix) {
 		int[][] m = new int[matrix.length][matrix.length];
 		int degree = 0;
