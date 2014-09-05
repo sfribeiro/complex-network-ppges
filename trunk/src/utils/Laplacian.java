@@ -1,6 +1,7 @@
 package utils;
 
 public class Laplacian {
+	
 	public static int[][] calculate(int[][] matrix) {
 		int[][] degree = DegreeMatrix.calculate(matrix);
 
