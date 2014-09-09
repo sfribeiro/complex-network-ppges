@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import gstream.GraphViewer;
-import metrics.ClusteringCoeffient;
+import metrics.ClusteringCoefficient;
+import metrics.Density;
 import metrics.Eigenvalues;
 import metrics.Eigenvectors;
 import metrics.Entropy;
@@ -17,7 +18,12 @@ public class Test {
 
 	public static void main(String[] args) {
 		
-		double[][] m = new double[][]{{0,1,0,1},{1,0,1,0},{0,1,0,0},{1,0,0,0}};
+		double[][] m = new double[][]{
+									{0,1,1,1,1},
+									{1,0,1,1,0},
+									{1,1,0,1,0},
+									{1,1,1,0,1},
+									{1,0,0,1,0}};
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
@@ -73,7 +79,10 @@ public class Test {
 		System.out.println(new Entropy().calculate(m));
 		
 		System.out.println("\nClustering Coefficient: ");
-		System.out.println(new ClusteringCoeffient().calculate(m));
+		System.out.println(new ClusteringCoefficient().calculate(m));
+		
+		System.out.println("\nDensity: ");
+		System.out.println(new Density().calculate(m));
 	}
 
 }
