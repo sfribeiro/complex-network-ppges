@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import gstream.GraphViewer;
 import metrics.ClusteringCoeffient;
 import metrics.Eigenvalues;
 import metrics.Eigenvectors;
@@ -16,7 +17,30 @@ public class Test {
 
 	public static void main(String[] args) {
 		
-		double[][] m = new double[][]{{0,1,0,1},{1,0,1,0},{0,1,0,0},{1,0,0,0}}; 
+		double[][] m = new double[][]{{0,1,0,1},{1,0,1,0},{0,1,0,0},{1,0,0,0}};
+		
+		/* Graph Viewer BEGIN */
+		GraphViewer graphViewer = new GraphViewer();
+		for (int i = 0; i < m.length; i++) {
+			graphViewer.addNode(i);
+		}
+		
+		for (int i = 0; i < m.length; i++) {
+			for (int j = 0; j < m.length; j++) {
+				graphViewer.addEdge(i, j);
+			}
+		}
+		graphViewer.display();
+		
+		for (int i = 0; i < m.length; i++) {
+			for (int j = 0; j < m.length; j++) {
+				if (m[i][j] == 1) {
+					graphViewer.highlightEdge(i, j, true);
+				}
+			}
+		}
+		/* Graph Viewer END */
+		
 		System.out.println("Matrix:");
 		for(int i = 0; i < m.length; i++)
 			System.out.println(Arrays.toString(m[i]));
