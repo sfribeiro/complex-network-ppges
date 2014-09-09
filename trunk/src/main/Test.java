@@ -4,19 +4,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.graphstream.algorithm.Dijkstra;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
+import org.graphstream.algorithm.BetweennessCentrality;
 
 import gstream.GraphViewer;
+import metrics.AlgebraicConnectivity;
+import metrics.AveragePathLength;
+import metrics.Betweeness;
 import metrics.ClusteringCoefficient;
 import metrics.Density;
-import metrics.Eigenvalues;
-import metrics.Eigenvectors;
+import metrics.Diameter;
 import metrics.Entropy;
+import metrics.SpectralRadius;
 import utils.DegreeDistribution;
 import utils.DegreeMatrix;
+import utils.Eigenvalues;
+import utils.Eigenvectors;
 import utils.Laplacian;
 
 public class Test {
@@ -24,11 +26,12 @@ public class Test {
 	public static void main(String[] args) {
 		
 		double[][] m = new double[][]{
-									{0,1,1,1,1},
-									{1,0,1,1,0},
-									{1,1,0,1,0},
-									{1,1,1,0,1},
-									{1,0,0,1,0}};
+									{0,1,1,1,1,1},
+									{1,0,1,1,0,0},
+									{1,1,0,1,0,0},
+									{1,1,1,0,1,0},
+									{1,0,0,1,0,0},
+									{1,0,0,0,0,0}};
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
@@ -39,7 +42,8 @@ public class Test {
 		
 		for (int i = 0; i < m.length; i++) {
 			for (int j = 0; j < m.length; j++) {
-				graphViewer.addEdge(i, j);
+				if(m[i][j] == 1)
+					graphViewer.addEdge(i, j);
 			}
 		}
 		graphViewer.display();
@@ -50,18 +54,7 @@ public class Test {
 					graphViewer.highlightEdge(i, j, true);
 				}
 			}
-		}
-		
-		Graph g = graphViewer.getGrafo();
-		Dijkstra dijkstra = new Dijkstra();
-		dijkstra.init(g);		
-		
-		dijkstra.setSource(g.getNode(0));	
-		dijkstra.compute();
-		
-		System.out.println(dijkstra.getPath(g.getNode(4)));
-		
-		
+		}		
 		/* Graph Viewer END */
 		
 		System.out.println("Matrix:");
@@ -92,14 +85,33 @@ public class Test {
 		for(int i : degreeDistribution.keySet())
 			System.out.println(i + " - " + degreeDistribution.get(i));
 		
+		
+		System.out.println("###### Metrics ######");
+		
 		System.out.println("\nEntropy: ");
-		System.out.println(new Entropy().calculate(m));
+		System.out.println(new Entropy().calculate(m, null));
 		
 		System.out.println("\nClustering Coefficient: ");
-		System.out.println(new ClusteringCoefficient().calculate(m));
+		System.out.println(new ClusteringCoefficient().calculate(m, null));
 		
 		System.out.println("\nDensity: ");
-		System.out.println(new Density().calculate(m));
+		System.out.println(new Density().calculate(m, null));
+		
+		System.out.println("\nDiameter: ");
+		System.out.println(new Diameter().calculate(m, graphViewer.getGrafo()));
+		
+		System.out.println("\nAPL: ");
+		System.out.println(new AveragePathLength().calculate(m, graphViewer.getGrafo()));
+		
+		System.out.println("\nBetweeness: ");
+		System.out.println(new Betweeness().calculate(m, graphViewer.getGrafo()));
+		
+		System.out.println("\nSpectral Radius: ");
+		System.out.println(new SpectralRadius().calculate(lm, null));
+		
+		System.out.println("\nAlgebraic Connectivity: ");
+		System.out.println(new AlgebraicConnectivity().calculate(lm, null));
+		
 	}
 
 }

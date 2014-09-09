@@ -1,14 +1,11 @@
 package metrics;
 
-import java.util.Arrays;
-
 import org.graphstream.algorithm.Dijkstra;
-import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.MultiGraph;
 
-public class Betweeness implements IMetric{
-
+public class AveragePathLength implements IMetric {
+	
 	public Object calculate(double[][] matrix, Object g) {
 		
 		if(!(g instanceof MultiGraph)){
@@ -16,8 +13,7 @@ public class Betweeness implements IMetric{
 			return null;
 		}
 		
-		int[] edgesBetweeness = new int[matrix.length];
-		
+		double sum = 0;
 		MultiGraph graph = (MultiGraph)g;
 
 		if (graph != null) {
@@ -33,24 +29,15 @@ public class Betweeness implements IMetric{
 					if (i != j) {
 						Path path = dijkstra.getPath(graph.getNode(j));
 
-						for(Node e : path.getNodeSet())
-						{
-							int id = Integer.parseInt(e.getId());
-							edgesBetweeness[id]++;
-						}
+						int current = path.size();
+						sum += current;
 					}
 				}
 			}
-		}	
-		
-		System.out.println(Arrays.toString(edgesBetweeness));
-		
-		double sum = 0;
-		for(int i = 0 ; i < edgesBetweeness.length; i++)
-		{
-			sum += edgesBetweeness[i];
 		}
 		
-		return sum/(edgesBetweeness.length);
+		int n = matrix.length;
+		return (sum/(n * (n-1 )));
 	}
+
 }

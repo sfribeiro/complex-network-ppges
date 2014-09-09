@@ -3,7 +3,7 @@ package metrics;
 public class Density implements IMetric {
 
 	@Override
-	public Object calculate(double[][] m) {
+	public Object calculate(double[][] m, Object aux) {
 		double sum = 0;
 		
 		for(int i = 0; i < m.length; i++)
@@ -21,11 +21,4 @@ public class Density implements IMetric {
 		
 		return (sum/(n * (n - 1)));
 	}
-
-	@Override
-	public Object calculate(int[][] matrix) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
