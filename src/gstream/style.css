@@ -1,0 +1,16 @@
+node {
+    size-mode: dyn-size;
+    size: 20px;
+	fill-color: grey;
+    stroke-mode: plain;
+    stroke-color: black;
+    stroke-width: 2px;
+}
+
+edge {
+	fill-color: grey;
+}
+
+edge.influence {
+	fill-color: black;
+}
