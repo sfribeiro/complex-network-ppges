@@ -9,7 +9,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 public class Eigenvectors {
 
-	double tolerance = 1E-6;
+	static double tolerance = 1E-6;
 
 	public static List<double[]> calculate(int[][] matrix) {
 
@@ -25,8 +25,7 @@ public class Eigenvectors {
 		List<double[]> resp = new ArrayList<double[]>();
 		double[] eigenVector = null;
 		try {
-			@SuppressWarnings("deprecation")
-			EigenDecomposition solver = new EigenDecomposition(rm, 0);
+			EigenDecomposition solver = new EigenDecomposition(rm);
 			for (int i = 0; i < matrix.length; i++) {
 
 				eigenVector = solver.getEigenvector(i).toArray();
@@ -46,8 +45,7 @@ public class Eigenvectors {
 		List<double[]> resp = new ArrayList<double[]>();
 		double[] eigenVector = null;
 		try {
-			@SuppressWarnings("deprecation")
-			EigenDecomposition solver = new EigenDecomposition(rm, 0);
+			EigenDecomposition solver = new EigenDecomposition(rm);
 			for (int i = 0; i < matrix.length; i++) {
 
 				eigenVector = solver.getEigenvector(i).toArray();
