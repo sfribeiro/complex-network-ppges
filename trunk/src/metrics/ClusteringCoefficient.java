@@ -2,7 +2,7 @@ package metrics;
 
 import java.util.ArrayList;
 
-public class ClusteringCoeffient implements IMetric {
+public class ClusteringCoefficient implements IMetric {
 
 	@Override
 	public Object calculate(double[][] m) {
@@ -10,6 +10,8 @@ public class ClusteringCoeffient implements IMetric {
 		double sum = 0;
 		for(int i = 0; i < m.length; i++)
 		{
+			
+			// calculate neighbors
 			ArrayList<Integer> neighbors = new ArrayList<Integer>();
 			for(int j = 0; j < m[0].length; j++)
 			{
@@ -19,18 +21,20 @@ public class ClusteringCoeffient implements IMetric {
 				}
 			}
 			
-			int c = 0;
+			//calculate 'triangulações'
+			double c = 0;
 			for(int v=0; v < neighbors.size()-1; v++)
 			{
-				for(int v2=1; v2 < neighbors.size(); v2++)
+				for(int v2=v+1; v2 < neighbors.size(); v2++)
 				{
-					if(m[v][v2]==1) c++;
+					if(m[neighbors.get(v)][neighbors.get(v2)]==1) c++;
 				}
 			}
 			
 			int di = neighbors.size();
 			if(di > 1){
 				double cci = 2*c/(di * (di - 1));
+				System.out.println(i + " - " + cci);
 				sum+= cci;
 			}
 		}
