@@ -39,7 +39,7 @@ public class ClusteringCoefficient implements IMetric {
 			}
 		}
 		
-		return (sum/m.length);
+		return ("Mean CC: " + sum/m.length);
 	}
 
 	@Override
