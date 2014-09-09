@@ -7,7 +7,7 @@ import utils.DegreeDistribution;
 public class Entropy implements IMetric{
 
 	@Override
-	public Object calculate(double[][] matrix) {
+	public Object calculate(double[][] matrix, Object aux) {
 	
 		HashMap<Integer, Integer> degreeDistribution = DegreeDistribution.calculate(matrix);
 		
@@ -17,11 +17,4 @@ public class Entropy implements IMetric{
 		
 		return resp;
 	}
-
-	@Override
-	public Object calculate(int[][] matrix) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

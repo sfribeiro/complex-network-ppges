@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class ClusteringCoefficient implements IMetric {
 
 	@Override
-	public Object calculate(double[][] m) {
+	public Object calculate(double[][] m, Object aux) {
 	
 		double sum = 0;
 		for(int i = 0; i < m.length; i++)
@@ -41,11 +41,4 @@ public class ClusteringCoefficient implements IMetric {
 		
 		return ("Mean CC: " + sum/m.length);
 	}
-
-	@Override
-	public Object calculate(int[][] matrix) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

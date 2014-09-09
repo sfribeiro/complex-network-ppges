@@ -1,4 +1,4 @@
-package metrics;
+package utils;
 
 import java.util.Arrays;
 
@@ -7,8 +7,6 @@ import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class Eigenvalues {
-	
-	static final double tolerance = 1E-8;
 	
 	private Eigenvalues() { }
 	

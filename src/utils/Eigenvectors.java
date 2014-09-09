@@ -1,4 +1,4 @@
-package metrics;
+package utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,6 @@ import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 
 public class Eigenvectors {
-
-	static double tolerance = 1E-6;
 
 	public static List<double[]> calculate(int[][] matrix) {
 
