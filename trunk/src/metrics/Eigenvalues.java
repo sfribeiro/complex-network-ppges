@@ -24,8 +24,7 @@ public class Eigenvalues {
 		RealMatrix rm = new Array2DRowRealMatrix(realValues);
 		double[] eigenValues = null;
 		try {
-			@SuppressWarnings("deprecation")
-			EigenDecomposition solver = new EigenDecomposition(rm, tolerance);
+			EigenDecomposition solver = new EigenDecomposition(rm);
 			eigenValues = solver.getRealEigenvalues();
 			Arrays.sort(eigenValues);
 			
@@ -48,8 +47,7 @@ public class Eigenvalues {
 		RealMatrix rm = new Array2DRowRealMatrix(matrix);
 		double[] eigenValues = null;
 		try {
-			@SuppressWarnings("deprecation")
-			EigenDecomposition solver = new EigenDecomposition(rm, tolerance);
+			EigenDecomposition solver = new EigenDecomposition(rm);
 			eigenValues = solver.getRealEigenvalues();
 			
 			Arrays.sort(eigenValues);

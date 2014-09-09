@@ -4,6 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.graphstream.algorithm.Dijkstra;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+
 import gstream.GraphViewer;
 import metrics.ClusteringCoefficient;
 import metrics.Density;
@@ -27,6 +32,7 @@ public class Test {
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
+		
 		for (int i = 0; i < m.length; i++) {
 			graphViewer.addNode(i);
 		}
@@ -45,6 +51,17 @@ public class Test {
 				}
 			}
 		}
+		
+		Graph g = graphViewer.getGrafo();
+		Dijkstra dijkstra = new Dijkstra();
+		dijkstra.init(g);		
+		
+		dijkstra.setSource(g.getNode(0));	
+		dijkstra.compute();
+		
+		System.out.println(dijkstra.getPath(g.getNode(4)));
+		
+		
 		/* Graph Viewer END */
 		
 		System.out.println("Matrix:");
