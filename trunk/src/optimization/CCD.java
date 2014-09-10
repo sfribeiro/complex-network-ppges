@@ -2,7 +2,10 @@ package optimization;
 
 import org.graphstream.graph.implementations.MultiGraph;
 
+import utils.Eigenvalues;
+import utils.Laplacian;
 import gstream.GraphViewer;
+import metrics.AlgebraicConnectivity;
 import metrics.ClusteringCoefficient;
 import metrics.Diameter;
 import jmetal.core.Problem;
@@ -50,30 +53,38 @@ public class CCD extends Problem{
 		double[] f = new double[numberOfObjectives_];
 		
 		double[][] m = getMatrix(x);
-		MultiGraph graph = getGraph(m);
 		
-		double f0 =  (double) CC.calculate(m, graph);
-		double f1 =  (double) D.calculate(m, graph);
-
+		AlgebraicConnectivity algCon = new AlgebraicConnectivity();
+		double ac = (double)algCon.calculate(Laplacian.calculateDouble(m), null);
+		
+		double f0 = Double.MIN_VALUE;
+		double f1 = Double.MIN_VALUE;
+		
+		if (ac > 1E-15) {
+			MultiGraph graph = getGraph(m);
+			f0 =  (double) CC.calculate(m, graph);
+			f1 =  (double) D.calculate(m, graph);
+		}
+		
 		if(f0 > 0)
-		f[0] = 1 / ( f0 );
+			f[0] = 1 / ( f0 );
 		else
 			f[0] = 1000;
 		
 		if(f1 > 0)
-		f[1] = 1 / ( f1 );
+			f[1] = 1 / ( f1 );
 		else
 			f[1] = 1000;
 
+		//System.out.println("F0: " + f0 + " F1: " + f1);
 		solution.setObjective(0, f[0]);
 		solution.setObjective(1, f[1]);
-		
 	}
 	
 	private double[][] getMatrix(Binary x) throws JMException
 	{
-		int size = 7;// (int) Math.sqrt(x.getNumberOfBits());
-		
+		int size = this.getSize(x);// (int) Math.sqrt(x.getNumberOfBits());
+
 		double[][] resp = new double[size][size];
 		
 		for (int i = 0; i < size; i++)
@@ -113,7 +124,25 @@ public class CCD extends Problem{
 	
 	public void evaluateConstraints(Solution solution) throws JMException {
 
-
+//		Binary x = (Binary) solution.getDecisionVariables()[0];
+//		
+//		double[][] m = getMatrix(x);
+//		
+//		if(Eigenvalues.calculate(m)[1] <= 0)
+//			solution.setNumberOfViolatedConstraint(1);
+	}
+	
+	private int getSize(Binary x) {
+		int numBits = x.getNumberOfBits();
+		
+		for (int i = 0; i < numBits - 1; i++) {
+			int j = i + 1;
+			if (i * j == numBits * 2) {
+				return j;
+			}
+		}
+		
+		return 0;
 	}
 
 }

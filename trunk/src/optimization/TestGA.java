@@ -4,6 +4,8 @@ import gstream.GraphViewer;
 
 import java.util.HashMap;
 
+import utils.Laplacian;
+import metrics.AlgebraicConnectivity;
 import metrics.ClusteringCoefficient;
 import metrics.Diameter;
 import jmetal.core.Operator;
@@ -22,7 +24,6 @@ public class TestGA {
 	private static int numNodes = 7;
 
 	public static void main(String[] args) throws ClassNotFoundException, JMException {
-		
 		
 		NSGAII algorithm = new NSGAII(new CCD("BinarySolution", numNodes));
 		
@@ -56,6 +57,7 @@ public class TestGA {
 		algorithm.addOperator("crossover", crossover);
 		algorithm.addOperator("mutation", mutation);
 		algorithm.addOperator("selection", selection);
+		
 		
 		SolutionSet result = algorithm.execute();
 		result.printFeasibleVAR("VAR");
@@ -107,11 +109,16 @@ public class TestGA {
 			double cc =  (double) CC.calculate(m, graphViewer.getGrafo());
 			double d = (double) D.calculate(m, graphViewer.getGrafo());
 			
-			if(cc >0 || d > 0){
+			AlgebraicConnectivity algCon = new AlgebraicConnectivity();
+			double ac = (double)algCon.calculate(Laplacian.calculateDouble(m), null);
+			
+			if((cc >0 || d > 0) && ac > 1E-15){
+				
 				graphViewer.display();
 
 				System.out.println("CC = " + cc);
 				System.out.println("Diameter = " + d );
+				System.out.println("AC = " + ac );
 			}
 			
 		}
