@@ -33,8 +33,8 @@ public class TestGA {
 		HashMap<String, Object> parameters;
 		QualityIndicator indicators = null;
 
-		algorithm.setInputParameter("populationSize", 20);
-		algorithm.setInputParameter("maxEvaluations", 10000);
+		algorithm.setInputParameter("populationSize", 30);
+		algorithm.setInputParameter("maxEvaluations", 1000);
 		algorithm.setInputParameter("indicators", indicators);
 
 		parameters = new HashMap<String, Object>();
@@ -79,15 +79,15 @@ public class TestGA {
 			
 			for (int x = 0; x < size; x++)
 				for (int j = i; j < size; j++){
-					if(i == j) 
+					if(x == j) 
 						m[x][j] = 0;
 					else if(b.getIth(x+j)){
 						m[x][j] = 1;
-						m[x][i] = 1;
+						m[j][x] = 1;
 					}
 					else{
 						m[x][j] = 0;
-						m[x][i] = 0;
+						m[j][x] = 0;
 					}
 				}
 			
@@ -99,7 +99,7 @@ public class TestGA {
 			
 			for (int x = 0; x < m.length; x++) {
 				for (int j = 0; j < m.length; j++) {
-					if(m[x][j] == 1)
+					if(m[x][j] == 1 && m[j][x] == 1)
 						graphViewer.addEdge(x, j);
 				}
 			}
