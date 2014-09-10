@@ -34,11 +34,11 @@ public class ClusteringCoefficient implements IMetric {
 			int di = neighbors.size();
 			if(di > 1){
 				double cci = 2*c/(di * (di - 1));
-				System.out.println(i + " - " + cci);
+				//System.out.println(i + " - " + cci);
 				sum+= cci;
 			}
 		}
 		
-		return ("Mean CC: " + sum/m.length);
+		return (sum/m.length);
 	}
 }

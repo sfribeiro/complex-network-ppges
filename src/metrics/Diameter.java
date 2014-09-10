@@ -13,7 +13,7 @@ public class Diameter implements IMetric {
 			return null;
 		}
 		
-		int size = -1;
+		double size = -1;
 		MultiGraph graph = (MultiGraph)g;
 
 		if (graph != null) {
