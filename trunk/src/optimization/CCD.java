@@ -23,7 +23,7 @@ public class CCD extends Problem{
 	public CCD(String solutionType, Integer numberOfVariables) {
 		numberOfVariables_ = 1;
 		numberOfObjectives_ = 2;
-		numberOfConstraints_ = 0;
+		numberOfConstraints_ = 1;
 		problemName_ = "CCD";
 		length_ = new int[2];
 		length_[0]= (numberOfVariables * (numberOfVariables - 1))/2;
@@ -64,17 +64,20 @@ public class CCD extends Problem{
 			MultiGraph graph = getGraph(m);
 			f0 =  (double) CC.calculate(m, graph);
 			f1 =  (double) D.calculate(m, graph);
+		}else
+		{
+			solution.setNumberOfViolatedConstraint(1);
 		}
 		
-		if(f0 > 0)
-			f[0] = 1 / ( f0 );
-		else
-			f[0] = 1000;
+		// if(f0 > 0)
+			f[0] = 1 / ( f0 + 1 );
+		//else
+		//	f[0] = 10;
 		
-		if(f1 > 0)
-			f[1] = 1 / ( f1 );
-		else
-			f[1] = 1000;
+		//if(f1 > 0)
+			f[1] = 1 / ( f1 + 1 );
+		//else
+		//	f[1] = 10;
 
 		//System.out.println("F0: " + f0 + " F1: " + f1);
 		solution.setObjective(0, f[0]);
@@ -124,12 +127,12 @@ public class CCD extends Problem{
 	
 	public void evaluateConstraints(Solution solution) throws JMException {
 
-//		Binary x = (Binary) solution.getDecisionVariables()[0];
-//		
-//		double[][] m = getMatrix(x);
-//		
-//		if(Eigenvalues.calculate(m)[1] <= 0)
-//			solution.setNumberOfViolatedConstraint(1);
+		Binary x = (Binary) solution.getDecisionVariables()[0];
+		
+		double[][] m = getMatrix(x);
+		
+		if(Eigenvalues.calculate(m)[1] <= 0)
+			solution.setNumberOfViolatedConstraint(1);
 	}
 	
 	private int getSize(Binary x) {

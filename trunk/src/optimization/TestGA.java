@@ -9,10 +9,10 @@ import metrics.AlgebraicConnectivity;
 import metrics.ClusteringCoefficient;
 import metrics.Diameter;
 import jmetal.core.Operator;
+import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.encodings.variable.Binary;
-import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
@@ -21,11 +21,12 @@ import jmetal.util.JMException;
 
 public class TestGA {
 	
-	private static int numNodes = 7;
+	public static int numNodes = 15;
 
 	public static void main(String[] args) throws ClassNotFoundException, JMException {
 		
-		NSGAII algorithm = new NSGAII(new CCD("BinarySolution", numNodes));
+		Problem problem = new CCD("BinarySolution", numNodes);
+		MyNSGAII algorithm = new MyNSGAII(problem,true);
 		
 		Operator crossover;
 		Operator mutation;
@@ -34,8 +35,8 @@ public class TestGA {
 		HashMap<String, Object> parameters;
 		QualityIndicator indicators = null;
 
-		algorithm.setInputParameter("populationSize", 30);
-		algorithm.setInputParameter("maxEvaluations", 1000);
+		algorithm.setInputParameter("populationSize", 100);
+		algorithm.setInputParameter("maxEvaluations", 5000);
 		algorithm.setInputParameter("indicators", indicators);
 
 		parameters = new HashMap<String, Object>();
@@ -61,6 +62,7 @@ public class TestGA {
 		
 		SolutionSet result = algorithm.execute();
 		result.printFeasibleVAR("VAR");
+		result.printFeasibleFUN("FUN");
 		
 		printSolutions(result);
 	}
