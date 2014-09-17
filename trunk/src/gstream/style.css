@@ -1,10 +1,11 @@
 node {
     size-mode: dyn-size;
-    size: 20px;
+    size: 40px;
 	fill-color: grey;
     stroke-mode: plain;
     stroke-color: black;
     stroke-width: 2px;
+    text-size: 16px;
 }
 
 edge {

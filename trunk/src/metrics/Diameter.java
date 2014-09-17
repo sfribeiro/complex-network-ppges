@@ -39,6 +39,6 @@ public class Diameter implements IMetric {
 			}
 		}
 		
-		return size;
+		return size-1; //retorna o número de enlaces não o número de nós
 	}
 }

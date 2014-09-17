@@ -25,22 +25,16 @@ public class Test {
 
 	public static void main(String[] args) {
 		
-//		double[][] m = new double[][]{
-//									{0,1,1,1,1,1},
-//									{1,0,1,1,0,0},
-//									{1,1,0,1,0,0},
-//									{1,1,1,0,1,0},
-//									{1,0,0,1,0,0},
-//									{1,1,1,1,1,0}};
+		//double[][] m = NetworkGenerate.scaleFree(30);
 		
-		double[][] m = new double[][]{
+		double[][] m = NetworkGenerate.erdosReni(30,0.7); /*new double[][]{
 				{0,0,1,1,0,0,1},
 				{0,0,1,0,0,1,0},
 				{1,1,0,0,1,0,1},
 				{1,0,0,0,0,1,1},
 				{0,0,1,0,0,1,1},
 				{0,1,0,1,1,0,0},
-				{1,0,1,1,1,0,0}};
+				{1,0,1,1,1,0,0}};*/
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
@@ -68,7 +62,7 @@ public class Test {
 		
 		System.out.println("Matrix:");
 		for(int i = 0; i < m.length; i++)
-			System.out.println(Arrays.toString(m[i]));
+			System.out.println(Arrays.toString(m[i]).replace(".", ","));
 		
 		System.out.println("\nDegreeMatrix: ");
 		double[][] dm = DegreeMatrix.calculateDouble(m);
