@@ -15,6 +15,8 @@ import metrics.Density;
 import metrics.Diameter;
 import metrics.Entropy;
 import metrics.SpectralRadius;
+import models.Barabasi_Albert;
+import models.Erdos_Renyi;
 import utils.DegreeDistribution;
 import utils.DegreeMatrix;
 import utils.Eigenvalues;
@@ -27,7 +29,7 @@ public class Test {
 		
 		//double[][] m = NetworkGenerate.scaleFree(30);
 		
-		double[][] m = NetworkGenerate.erdosReni(30,0.7); /*new double[][]{
+		/*double[][] m = NetworkGenerate.erdosReni(30,0.7); /*new double[][]{
 				{0,0,1,1,0,0,1},
 				{0,0,1,0,0,1,0},
 				{1,1,0,0,1,0,1},
@@ -35,6 +37,9 @@ public class Test {
 				{0,0,1,0,0,1,1},
 				{0,1,0,1,1,0,0},
 				{1,0,1,1,1,0,0}};*/
+		
+		//double[][] m = Erdos_Renyi.generate(30, 0.5);
+		double[][] m = Barabasi_Albert.generate(100, 1);
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
