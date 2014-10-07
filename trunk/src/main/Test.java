@@ -17,6 +17,7 @@ import metrics.Entropy;
 import metrics.SpectralRadius;
 import models.Barabasi_Albert;
 import models.Erdos_Renyi;
+import models.Watts_Strogatz;
 import utils.DegreeDistribution;
 import utils.DegreeMatrix;
 import utils.Eigenvalues;
@@ -39,7 +40,8 @@ public class Test {
 				{1,0,1,1,1,0,0}};*/
 		
 		//double[][] m = Erdos_Renyi.generate(30, 0.5);
-		double[][] m = Barabasi_Albert.generate(100, 1);
+		//double[][] m = Barabasi_Albert.generate(100, 1);
+		double[][] m = Watts_Strogatz.generate(20, 4, 0.5);
 		
 		/* Graph Viewer BEGIN */
 		GraphViewer graphViewer = new GraphViewer();
