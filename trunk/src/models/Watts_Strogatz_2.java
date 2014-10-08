@@ -47,7 +47,8 @@ public class Watts_Strogatz_2 {
 					}
 					
 					int novo = i;
-					while(novo == i)
+					while(novo == i || resp[i][novo] == 1)
+					//while(novo == i)
 						novo = Config.random.nextInt(N);
 					
 					resp[i][novo] = 1;
