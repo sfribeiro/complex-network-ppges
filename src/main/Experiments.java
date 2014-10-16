@@ -8,28 +8,80 @@ import gstream.GraphViewer;
 import metrics.ClusteringCoefficient;
 import metrics.Diameter;
 import models.Barabasi_Albert;
+import models.Erdos_Renyi;
 import models.Watts_Strogatz_2;
 
 public class Experiments {
 
 	public static void main(String[] args) {
 
-		// testBA();
-		testBeta();
+		//testErdosRenyi();
+		 testBA();
+		// testBeta();
 
+	}
+
+	public static void testErdosRenyi() {
+		
+		int amostras = 30;		
+		HashMap<Integer, Integer> result = new HashMap<Integer, Integer>();
+		
+		for (int i = 0; i < amostras; i++) {
+			
+			double[][] net = Erdos_Renyi.generate(1000, 0.2);
+			HashMap<Integer, Integer> degrees = DegreeDistribution
+					.calculate(net);
+
+			for(Integer k : degrees.keySet())
+			{
+				if(result.containsKey(k))
+				{
+					int num = result.get(k);
+					result.put(k, num + degrees.get(k));
+				}
+				else
+				{
+					result.put(k, degrees.get(k));
+				}
+			}
+		}
+
+		Object[] d = result.keySet().toArray();
+		Arrays.sort(d);
+		for (int i = 0; i < d.length; i++) {
+			System.out.println(d[i] + ";" + (result.get(d[i])/amostras));
+		}
 	}
 
 	// Test degree distribution for Barabasi_Albert model
 	public static void testBA() {
-		double[][] net = Barabasi_Albert.generate(10000, 2);
+		int amostras = 30;		
+		HashMap<Integer, Integer> result = new HashMap<Integer, Integer>();
+		
+		for (int i = 0; i < amostras; i++) {
+			
+			double[][] net = Barabasi_Albert.generate(10000, 2);
+			HashMap<Integer, Integer> degrees = DegreeDistribution
+					.calculate(net);
 
-		HashMap<Integer, Integer> degrees = DegreeDistribution.calculate(net);
+			for(Integer k : degrees.keySet())
+			{
+				if(result.containsKey(k))
+				{
+					int num = result.get(k);
+					result.put(k, num + degrees.get(k));
+				}
+				else
+				{
+					result.put(k, degrees.get(k));
+				}
+			}
+		}
 
-		Object[] d = degrees.keySet().toArray();
+		Object[] d = result.keySet().toArray();
 		Arrays.sort(d);
-
 		for (int i = 0; i < d.length; i++) {
-			System.out.println(d[i] + ";" + degrees.get(d[i]));
+			System.out.println(d[i] + ";" + (result.get(d[i])/amostras));
 		}
 	}
 
@@ -81,9 +133,9 @@ public class Experiments {
 				d += dCurrent;
 				cc += ccCurrent;
 			}
-			
+
 			System.out.println((p + ";" + d / (amostras * d_max) + ";" + cc
-					/ (amostras * cc_max)).replace(".", ","));
+					/ (amostras)).replace(".", ","));
 		}
 
 	}
