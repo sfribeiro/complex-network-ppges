@@ -6,6 +6,7 @@ import java.util.List;
 
 import gstream.GraphViewer;
 import metrics.AlgebraicConnectivity;
+import metrics.Assortativity;
 import metrics.AveragePathLength;
 import metrics.Betweeness;
 import metrics.ClusteringCoefficient;
@@ -35,9 +36,9 @@ public class Test {
 			 * {1,0,1,1,1,0,0}};
 			 */
 
-			// double[][] m = Erdos_Renyi.generate(30, 0.5);
+			 double[][] m = Erdos_Renyi.generate(30, 0.5);
 			// double[][] m = Barabasi_Albert.generate(100, 1);
-			double[][] m = Watts_Strogatz_2.generate(20, 4, 0.2);
+			//double[][] m = Watts_Strogatz_2.generate(100, 4, 0.2);
 
 			/* Graph Viewer BEGIN */
 			GraphViewer graphViewer = new GraphViewer();
@@ -133,6 +134,9 @@ public class Test {
 
 		System.out.println("\nAlgebraic Connectivity: ");
 		System.out.println(new AlgebraicConnectivity().calculate(lm, null));
+		
+		System.out.println("\nAssortativite: ");
+		System.out.println(new Assortativity().calculate(m,null));
 	}
 
 }
