@@ -1,9 +1,11 @@
-package project;
+package project.algorithms;
 
 import java.util.HashMap;
 
 import javax.swing.JFrame;
 
+import project.MethaPopulation;
+import project.gui.GenericMonitor;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
@@ -13,7 +15,7 @@ import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
 
-public class MyGeneticAlgorithm extends Algorithm {
+public class MyNSGAII extends Algorithm {
 
 	private static final long serialVersionUID = -8278394144577250395L;
 	protected GenericMonitor view_;
@@ -23,7 +25,7 @@ public class MyGeneticAlgorithm extends Algorithm {
 	protected String[] metrics_ = new String[] { "Spread", "Hypervolume", "GD",
 			"IGD", "Epsilon" };
 
-	public MyGeneticAlgorithm(Problem problem, boolean gui) {
+	public MyNSGAII(Problem problem, boolean gui) {
 		super(problem);
 		this.gui_ = gui;
 	}
@@ -83,7 +85,7 @@ public class MyGeneticAlgorithm extends Algorithm {
 		while (evaluations < maxEvaluations) {
 
 			struct.execute();
-			struct.migration();
+			if(evaluations % 100 == 0) struct.migration();
 			evaluations += populationSize;
 			population = struct.union();
 
