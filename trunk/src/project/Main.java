@@ -26,7 +26,7 @@ public class Main {
 			Operator selection;
 
 			HashMap<String, Object> parameters;
-			QualityIndicator indicators = null;// new QualityIndicator(problem, "ParetoFronts/"+problem.getClass().getSimpleName()+".txt");
+			QualityIndicator indicators = new QualityIndicator(problem, "ParetoFronts/"+problem.getClass().getSimpleName()+".txt");
 
 			MyGeneticAlgorithm algorithm = new MyGeneticAlgorithm(problem,true);
 			algorithm
