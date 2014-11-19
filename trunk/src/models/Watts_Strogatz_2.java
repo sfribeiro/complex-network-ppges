@@ -28,6 +28,8 @@ public class Watts_Strogatz_2 {
 				}
 			}
 		}
+		
+		
 
 		for (int i = 0; i < N; i++) {
 			for (int j = 1; j <= (K / 2); j++) {
