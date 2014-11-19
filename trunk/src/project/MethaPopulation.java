@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import project.util.RouletteSelection;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
