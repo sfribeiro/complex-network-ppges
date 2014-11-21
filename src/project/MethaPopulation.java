@@ -251,31 +251,30 @@ public class MethaPopulation {
 
 	public void migration() throws JMException {
 		SolutionSet deme;
-		SolutionSet v;
-
-		Operator s = new RouletteSelection(null);
+		SolutionSet vizinho;
+		
+		int out = -1, in = -1;
+		Solution sOut, sIn;
 
 		for (int i = 0; i < demes.size(); i++) {
 			deme = demes.get(i);
+			out = Config.random.nextInt(deme.size());
+			sOut = deme.get(out);
+			deme.remove(out);
+			
+			ArrayList<Integer> vizinhos = getVizinhos(i);			
+			int nVizinho = Config.random.nextInt(vizinhos.size());
+			vizinho = demes.get(nVizinho);
+			in = Config.random.nextInt(vizinho.size());
+			sIn = vizinho.get(in);
+			vizinho.remove(in);
+			
+			deme.add(sIn);
+			vizinho.add(sOut);
+			
+			
 
-			// if(Config.random.nextDouble() < 0.001){
-			int conectividade = getVizinhos(i).size();
-
-			for (int x = 0; x < conectividade; x++) {
-				Solution s1 = (Solution) s.execute(deme);
-				// deme.remove(s1);
-
-				ArrayList<Integer> vizinhos = getVizinhos(i);
-				int index = Config.random.nextInt(vizinhos.size());
-
-				v = demes.get(vizinhos.get(index));
-				Solution s2 = (Solution) s.execute(v);
-				// v.remove(s2);
-
-				deme.add(s2);
-				v.add(s1);
-			}
-			// }
+			
 		}
 	}
 

@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import org.jfree.ui.RefineryUtilities;
 
 import project.algorithms.MyNSGAII;
+import project.algorithms.NSGAII;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
@@ -18,30 +19,34 @@ import jmetal.core.SolutionSet;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
-import jmetal.problems.DTLZ.DTLZ1;
-import jmetal.problems.ZDT.ZDT4;
+import jmetal.problems.ZDT.ZDT1;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.JMException;
 
 public class Experiments {
 	
+	static Problem problem; // DTLZ1("Real", 100, 2);
 	static Algorithm algorithm;
 
-	public static void main(String[] args) {		
+
+	public static void main(String[] args) {
+
+		Config.maxEvaluations = 30000;
+		Config.populationSize = 500;
+		Config.archiveSize = Config.populationSize;
+		Config.dimension = 100;
+		
+		problem = new ZDT1("ArrayReal",100); // DTLZ1("Real", 100, 2);
+		algorithm = //new  NSGAII(problem, false);
+				new MyNSGAII(problem, false);
+		
+		
 		try {
 			
 			Experiments e = new Experiments();
 			
-			Config.maxEvaluations = 10000;
-			Config.populationSize = 500;
-			Config.archiveSize = Config.populationSize;
-			Config.dimension = 100;
 			
-			Problem problem =
-				// new Griewank("Real",100);
-				// new DTLZ1("Real", 100, 2);
-				// new ZDT1("ArrayReal",100);
-					new ZDT4("ArrayReal",100);
+			
 			
 			e.execute(problem, "ParetoFronts/" + problem.getName() + ".txt", 30);
 
@@ -109,7 +114,7 @@ public class Experiments {
 			System.out.println("Amostra " + (i + 1) + " seed=" + seed);
 			jmetal.util.PseudoRandom.setRandomGenerator(new project.util.MyRandom(seed));
 
-			algorithm = new MyNSGAII(problem, false);
+			//algorithm = new MyNSGAII(problem, false);
 
 			loadSetup(algorithm, fileParetoTrue);
 			indicators = (QualityIndicator) algorithm
