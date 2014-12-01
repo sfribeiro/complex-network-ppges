@@ -4,10 +4,6 @@ import gstream.GraphViewer;
 
 import java.util.HashMap;
 
-import utils.Laplacian;
-import metrics.AlgebraicConnectivity;
-import metrics.ClusteringCoefficient;
-import metrics.Diameter;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
@@ -18,6 +14,10 @@ import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.JMException;
+import metrics.AlgebraicConnectivity;
+import metrics.ClusteringCoefficient;
+import metrics.Diameter;
+import utils.Laplacian;
 
 public class TestGA {
 	

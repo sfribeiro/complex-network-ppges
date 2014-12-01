@@ -1,7 +1,7 @@
 package gstream;
 
-import org.graphstream.graph.Node;
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 
 public class GraphViewer {

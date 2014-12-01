@@ -1,10 +1,11 @@
 package main;
 
+import gstream.GraphViewer;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import gstream.GraphViewer;
 import metrics.AlgebraicConnectivity;
 import metrics.Assortativity;
 import metrics.AveragePathLength;
@@ -14,10 +15,7 @@ import metrics.Density;
 import metrics.Diameter;
 import metrics.Entropy;
 import metrics.SpectralRadius;
-import models.Barabasi_Albert;
 import models.Erdos_Renyi;
-import models.Watts_Strogatz;
-import models.Watts_Strogatz_2;
 import utils.DegreeDistribution;
 import utils.DegreeMatrix;
 import utils.Eigenvalues;

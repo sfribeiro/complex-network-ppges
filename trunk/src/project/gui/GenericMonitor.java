@@ -26,32 +26,27 @@ public class GenericMonitor extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private static final String title = "Monitor";
-	//private Problem problem;
+	// private Problem problem;
 
 	private HashMap<String, XYSeries> algorithmResults;
 	private HashMap<String, XYSeries> metricsResults;
-	
-	/*private Color[] colors = new Color[] { 
-			Color.black, 
-			Color.red, 
-			Color.blue,
-			Color.orange, 
-			Color.green,
-			Color.cyan,
-			Color.magenta,
-			Color.pink,
-			Color.YELLOW,
-			Color.WHITE};*/
 
-	public GenericMonitor(String title, String[] algorithms, String[] metrics, Problem problem) {
+	/*
+	 * private Color[] colors = new Color[] { Color.black, Color.red,
+	 * Color.blue, Color.orange, Color.green, Color.cyan, Color.magenta,
+	 * Color.pink, Color.YELLOW, Color.WHITE};
+	 */
+
+	public GenericMonitor(String title, String[] algorithms, String[] metrics,
+			Problem problem) {
 		super(title + " Amostra " + COUNT++);
-		//this.problem = problem;
+		// this.problem = problem;
 		algorithmResults = new HashMap<String, XYSeries>();
 		metricsResults = new HashMap<String, XYSeries>();
-		
+
 		final ChartPanel chartPanel = createPanelAlgorithms(algorithms);
-		chartPanel.setSize(200,200);
-		
+		chartPanel.setSize(200, 200);
+
 		final ChartPanel chartPanelQualityIndicator = createPanelMetrics(metrics);
 		chartPanelQualityIndicator.setSize(200, 200);
 
@@ -59,45 +54,48 @@ public class GenericMonitor extends JFrame {
 		this.add(chartPanelQualityIndicator, BorderLayout.EAST);
 
 		JPanel control = new JPanel();
-		control.setSize(50,50);
-		this.add(control, BorderLayout.SOUTH);		
+		control.setSize(50, 50);
+		this.add(control, BorderLayout.SOUTH);
 	}
 
 	private ChartPanel createPanelAlgorithms(String[] algorithms) {
 		JFreeChart jfreechart = ChartFactory.createScatterPlot(
-				"Monitor Algorithm", "F1", "F2", createData(algorithms,true),
+				"Monitor Algorithm", "F1", "F2", createData(algorithms, true),
 				PlotOrientation.VERTICAL, true, true, false);
-		
+
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 		xyPlot.setDomainCrosshairVisible(true);
 		xyPlot.setRangeCrosshairVisible(true);
 
-		/*XYItemRenderer renderer = xyPlot.getRenderer();
-
-		ShapeList sList = new ShapeList();
-		
-		for (int i = 0; i < algorithms.length; i++) {
-			renderer.setSeriesPaint(i, colors[i]);
-			renderer.setSeriesShape(i, sList.getShape(i));
-		}*/
+		/*
+		 * XYItemRenderer renderer = xyPlot.getRenderer();
+		 * 
+		 * ShapeList sList = new ShapeList();
+		 * 
+		 * for (int i = 0; i < algorithms.length; i++) {
+		 * renderer.setSeriesPaint(i, colors[i]); renderer.setSeriesShape(i,
+		 * sList.getShape(i)); }
+		 */
 
 		return new ChartPanel(jfreechart);
 	}
 
 	private ChartPanel createPanelMetrics(String[] metrics) {
 		JFreeChart jfreechart = ChartFactory.createScatterPlot(
-				"Metrics values", "Gerations", "Valor", createData(metrics,false),
-				PlotOrientation.VERTICAL, true, true, false);
+				"Metrics values", "Gerations", "Valor",
+				createData(metrics, false), PlotOrientation.VERTICAL, true,
+				true, false);
 
 		XYPlot xyPlot = (XYPlot) jfreechart.getPlot();
 		xyPlot.setDomainCrosshairVisible(true);
 		xyPlot.setRangeCrosshairVisible(true);
 
-		/*	XYItemRenderer renderer = xyPlot.getRenderer();
-
-		for (int i = 0; i < metrics.length; i++) {
-			renderer.setSeriesPaint(i, colors[i]);
-		}*/
+		/*
+		 * XYItemRenderer renderer = xyPlot.getRenderer();
+		 * 
+		 * for (int i = 0; i < metrics.length; i++) { renderer.setSeriesPaint(i,
+		 * colors[i]); }
+		 */
 
 		return new ChartPanel(jfreechart);
 	}
@@ -109,13 +107,10 @@ public class GenericMonitor extends JFrame {
 			XYSeries s = new XYSeries(name);
 			s.clear();
 			xySeriesCollection.addSeries(s);
-			if(isAlgorithm)
-			{
-				algorithmResults.put(name,s);
-			}
-			else
-			{
-				metricsResults.put(name,s);
+			if (isAlgorithm) {
+				algorithmResults.put(name, s);
+			} else {
+				metricsResults.put(name, s);
 			}
 		}
 
@@ -123,36 +118,37 @@ public class GenericMonitor extends JFrame {
 	}
 
 	public void update(HashMap<String, Object> dados, int geracao) {
-		
-		for(String name : algorithmResults.keySet())
-		{
-			if(dados.containsKey(name))
-			{
+
+		for (String name : algorithmResults.keySet()) {
+			if (dados.containsKey(name)) {
 				Object o = dados.get(name);
-				
-				if(o == null) continue;
-				
+
+				if (o == null)
+					continue;
+
 				XYSeries serie = algorithmResults.get(name);
-				
-				if(o instanceof SolutionSet)
-				{					
+
+				if (o instanceof SolutionSet) {
 					serie.clear();
-					
+
 					SolutionSet set = (SolutionSet) o;
 					Solution s;
+
 					for (int i = 0; i < set.size(); i++) {
 						s = set.get(i);
-						double x = s.getObjective(0);
-						double y = s.getObjective(1);
+						double x = 0,y = 0;
+						if (s.getNumberOfObjectives() > 1) {
+							x = s.getObjective(0);
+							y = s.getObjective(1);
+						}else
+						{
+							x = s.getObjective(0);
+						}
 						serie.add(x, y);
 					}
-				}
-				else if(o instanceof Number)
-				{
-					serie.add(geracao,(double)o);
-				}
-				else if(o instanceof ArrayList)
-				{
+				} else if (o instanceof Number) {
+					serie.add(geracao, (double) o);
+				} else if (o instanceof ArrayList) {
 					serie.clear();
 					@SuppressWarnings("unchecked")
 					ArrayList<double[]> list = (ArrayList<double[]>) o;
@@ -163,25 +159,20 @@ public class GenericMonitor extends JFrame {
 						double y = value[1];
 						serie.add(x, y);
 					}
-				}
-				else
-				{
+				} else {
 					System.err.println(o.getClass() + " não tratada!");
 				}
 			}
 		}
-		
-		for(String name : metricsResults.keySet())
-		{
-			if(dados.containsKey(name))
-			{
+
+		for (String name : metricsResults.keySet()) {
+			if (dados.containsKey(name)) {
 				Object o = dados.get(name);
 				XYSeries serie = metricsResults.get(name);
-				
-				if(o instanceof SolutionSet && serie != null)
-				{					
+
+				if (o instanceof SolutionSet && serie != null) {
 					serie.clear();
-					
+
 					SolutionSet set = (SolutionSet) o;
 					Solution s;
 					for (int i = 0; i < set.size(); i++) {
@@ -190,14 +181,12 @@ public class GenericMonitor extends JFrame {
 						double y = s.getObjective(1);
 						serie.add(x, y);
 					}
-				}
-				else if(o instanceof Number)
-				{
-					serie.add(geracao,(double)o);
+				} else if (o instanceof Number) {
+					serie.add(geracao, (double) o);
 				}
 			}
 		}
-		
+
 		try {
 			Thread.sleep(200);
 		} catch (Exception e) {
@@ -210,12 +199,9 @@ public class GenericMonitor extends JFrame {
 
 			@Override
 			public void run() {
-				GenericMonitor demo = 
-						new GenericMonitor(
-								title,
-								new String[]{"GA"}, 
-								new String[]{"Hypervolume","Spread"},
-								null);
+				GenericMonitor demo = new GenericMonitor(title,
+						new String[] { "GA" }, new String[] { "Hypervolume",
+								"Spread" }, null);
 				demo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				demo.pack();
 				demo.setLocationRelativeTo(null);

@@ -1,6 +1,8 @@
 package project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,36 +11,61 @@ import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
+import jmetal.metaheuristics.spea2.SPEA2;
+import jmetal.operators.selection.RandomSelection;
+import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Distance;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
+import jmetal.util.Spea2Fitness;
 import jmetal.util.comparators.CrowdingComparator;
 import jmetal.util.comparators.ObjectiveComparator;
 
 public class MethaPopulation {
 
-	private Problem problem;
-	private int populationSize;
-	private List<SolutionSet> demes;
-	private double[] fitness;
-	private int numDemes = 0;
-	private boolean[][] vizinhos;
-	private String type = "";
+	protected Problem problem;
+	protected int populationSize = 0;
+	protected List<SolutionSet> demes;
+	protected double[] fitness;
+	protected int numDemes = 0;
+	protected boolean[][] vizinhos;
+	protected String type = "";
 
-	private Operator selection;
-	private Operator mutation;
-	private Operator crossover;
+	protected Operator selection;
+	protected Operator mutation;
+	protected Operator crossover;
 
-	private double sum = 0;
+	protected double sum = 0;
 
 	public MethaPopulation(SolutionSet set, Problem problem,
 			Operator selection, Operator mutation, Operator crossover,
 			String type) throws ClassNotFoundException, JMException {
 		this.problem = problem;
-		this.numDemes = 30;
+		// TODO define number
+		this.numDemes = 100;
 		this.demes = new Vector<SolutionSet>(numDemes);
 		this.populationSize = set.size() / numDemes;
-		start(set);
+		groupSolutions(set);
+
+		this.fitness = new double[numDemes];
+		this.vizinhos = new boolean[numDemes][numDemes];
+
+		this.selection = selection;
+		this.mutation = mutation;
+		this.crossover = crossover;
+
+		init(type);
+	}
+	
+	public MethaPopulation(SolutionSet set, Problem problem, int numDemes,
+			Operator selection, Operator mutation, Operator crossover,
+			String type) throws ClassNotFoundException, JMException {
+		this.problem = problem;
+		// TODO define number
+		this.numDemes = numDemes;
+		this.demes = new Vector<SolutionSet>(numDemes);
+		this.populationSize = set.size() / numDemes;
+		groupSolutions(set);
 
 		this.fitness = new double[numDemes];
 		this.vizinhos = new boolean[numDemes][numDemes];
@@ -58,7 +85,7 @@ public class MethaPopulation {
 		return numDemes;
 	}
 
-	private void init(String type) {
+	protected void init(String type) {
 		this.type = type;
 		if (type.equals("BA")) {
 			BA();
@@ -67,9 +94,13 @@ public class MethaPopulation {
 		} else if (type.equals("Ring")) {
 			Ring();
 		}
+		else
+		{
+			Full();
+		}
 	}
 
-	private void BA() {
+	protected void BA() {
 		calculateDemes();
 
 		int numberNodes = numDemes;
@@ -94,7 +125,7 @@ public class MethaPopulation {
 		vizinhos = resp;
 	}
 
-	private void Full() {
+	protected void Full() {
 
 		int numberNodes = numDemes;
 		boolean[][] resp = new boolean[numberNodes][numberNodes];
@@ -109,20 +140,23 @@ public class MethaPopulation {
 		vizinhos = resp;
 	}
 
-	private void Ring() {
+	protected void Ring() {
 
 		int numberNodes = numDemes;
 		boolean[][] resp = new boolean[numberNodes][numberNodes];
 
 		for (int node = 0; node < numberNodes - 1; node++) {
-			resp[node+1][node] = true;
-			resp[node][node+1] = true;
+			resp[node + 1][node] = true;
+			resp[node][node + 1] = true;
 		}
+		resp[0][numberNodes - 1] = true;
+		resp[numberNodes - 1][0] = true;
 
 		vizinhos = resp;
 	}
 
-	private void calculateDemes() {
+	// calculate average fitness in each deme
+	protected void calculateDemes() {
 		Ranking ranking = new Ranking(union());
 		Problem problem = ranking.getSubfront(0).get(0).getProblem();
 
@@ -143,12 +177,16 @@ public class MethaPopulation {
 			sum += fitness[d];
 		}
 
-		ranking.getNumberOfSubfronts();
+		System.out.println(Arrays.toString(fitness));
 	}
 
-	private void start(SolutionSet set) {
+	// create demes
+	// TODO
+	public void groupSolutions(SolutionSet set) {
 		demes.clear();
+
 		set.sort(new ObjectiveComparator(0));
+
 		int i = set.size();
 		for (int d = 0; d < numDemes; d++) {
 			SolutionSet deme = new SolutionSet(populationSize);
@@ -158,7 +196,7 @@ public class MethaPopulation {
 		}
 	}
 
-	public void execute() throws JMException {
+	public void executeByNSGAII() throws JMException {
 		SolutionSet offspringPopulation;
 		SolutionSet union;
 		Distance distance = new Distance();
@@ -189,8 +227,6 @@ public class MethaPopulation {
 
 			// create the solutionSet union of solutionSet with offspring
 			union = deme.union(offspringPopulation);
-			
-			
 
 			Ranking ranking = new Ranking(union);
 
@@ -232,11 +268,66 @@ public class MethaPopulation {
 			}
 		}
 
-	//	init(type);
-		start(union());
+		// init(type);
+		groupSolutions(union());
 	}
 
-	private int getNext() {
+	// TODO
+	public void executeBySPEA2() throws JMException, ClassNotFoundException {
+		int archiveSize, maxEvaluations, evaluations;
+		SolutionSet solutionSet, archive, offSpringSolutionSet;
+
+		archiveSize = populationSize * demes.size();
+
+		// Initialize the variables
+		solutionSet = new SolutionSet(populationSize);
+		archive = new SolutionSet(archiveSize);
+
+		// -> Create the initial solutionSet
+		Solution newSolution;
+		for (int i = 0; i < populationSize; i++) {
+			newSolution = new Solution(problem);
+			problem.evaluate(newSolution);
+			problem.evaluateConstraints(newSolution);
+			solutionSet.add(newSolution);
+		}
+
+		SolutionSet union = solutionSet.union(archive);
+		Spea2Fitness spea = new Spea2Fitness(union);
+		spea.fitnessAssign();
+		archive = spea.environmentalSelection(archiveSize);
+
+		// Create a new offspringPopulation
+		offSpringSolutionSet = new SolutionSet(populationSize);
+		Solution[] parents = new Solution[2];
+		while (offSpringSolutionSet.size() < populationSize) {
+			int j = 0;
+			do {
+				j++;
+				parents[0] = (Solution) selection.execute(archive);
+			} while (j < SPEA2.TOURNAMENTS_ROUNDS); // do-while
+			int k = 0;
+			do {
+				k++;
+				parents[1] = (Solution) selection.execute(archive);
+			} while (k < SPEA2.TOURNAMENTS_ROUNDS); // do-while
+
+			// make the crossover
+			Solution[] offSpring = (Solution[]) crossover.execute(parents);
+			mutation.execute(offSpring[0]);
+			problem.evaluate(offSpring[0]);
+			problem.evaluateConstraints(offSpring[0]);
+			offSpringSolutionSet.add(offSpring[0]);
+
+		} // while
+			// End Create a offSpring solutionSet
+		solutionSet = offSpringSolutionSet;
+
+		Ranking ranking = new Ranking(archive);
+		groupSolutions(union());
+	}
+
+	protected int getNext() {
 		double d = Config.random.nextDouble();
 		double p = 0;
 
@@ -249,36 +340,39 @@ public class MethaPopulation {
 		return Config.random.nextInt(demes.size());
 	}
 
-	public void migration() throws JMException {
+	public void migration(double tax) throws JMException {
 		SolutionSet deme;
 		SolutionSet vizinho;
-		
+
 		int out = -1, in = -1;
 		Solution sOut, sIn;
 
 		for (int i = 0; i < demes.size(); i++) {
 			deme = demes.get(i);
-			out = Config.random.nextInt(deme.size());
-			sOut = deme.get(out);
-			deme.remove(out);
-			
-			ArrayList<Integer> vizinhos = getVizinhos(i);			
-			int nVizinho = Config.random.nextInt(vizinhos.size());
-			vizinho = demes.get(nVizinho);
-			in = Config.random.nextInt(vizinho.size());
-			sIn = vizinho.get(in);
-			vizinho.remove(in);
-			
-			deme.add(sIn);
-			vizinho.add(sOut);
-			
-			
 
-			
+			for (int n = 0; n < deme.size(); n++) {
+
+				if (Config.random.nextDouble() < tax) {
+
+					out = Config.random.nextInt(deme.size());
+					sOut = deme.get(out);
+					deme.remove(out);
+
+					ArrayList<Integer> vizinhos = getVizinhos(i);
+					int nVizinho = Config.random.nextInt(vizinhos.size());
+					vizinho = demes.get(nVizinho);
+					in = Config.random.nextInt(vizinho.size());
+					sIn = vizinho.get(in);
+					vizinho.remove(in);
+
+					deme.add(sIn);
+					vizinho.add(sOut);
+				}
+			}
 		}
 	}
 
-	private ArrayList<Integer> getVizinhos(int deme) {
+	protected ArrayList<Integer> getVizinhos(int deme) {
 		ArrayList<Integer> resp = new ArrayList<Integer>();
 
 		for (int i = 0; i < numDemes; i++) {

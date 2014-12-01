@@ -9,6 +9,7 @@ import org.graphstream.graph.implementations.MultiGraph;
 
 public class Betweeness implements IMetric{
 
+	@Override
 	public Object calculate(double[][] matrix, Object g) {
 		
 		if(!(g instanceof MultiGraph)){

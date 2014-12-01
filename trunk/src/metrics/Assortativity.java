@@ -5,6 +5,7 @@ import utils.DegreeMatrix;
 public class Assortativity implements IMetric {
 
 	//Resolver
+	@Override
 	public Object calculate(double[][] matrix, Object o) {
 
 		double sum = 0;
