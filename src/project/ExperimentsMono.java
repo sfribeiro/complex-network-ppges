@@ -1,6 +1,5 @@
 package project;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,81 +7,64 @@ import java.util.HashMap;
 
 import javax.swing.JFrame;
 
+import org.jfree.ui.RefineryUtilities;
+
+import project.algorithms.MyGA;
+import project.algorithms.MygGA;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
-import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.metaheuristics.nsgaII.NSGAII;
+import jmetal.metaheuristics.singleObjective.geneticAlgorithm.gGA;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
-import jmetal.problems.DTLZ.DTLZ1;
-import jmetal.problems.ZDT.ZDT1;
-import jmetal.problems.ZDT.ZDT4;
-import jmetal.qualityIndicator.QualityIndicator;
-import jmetal.qualityIndicator.fastHypervolume.FastHypervolume;
+import jmetal.problems.singleObjective.Griewank;
 import jmetal.util.JMException;
-import optimization.MyNSGAII;
 
-import org.jfree.ui.RefineryUtilities;
-import project.algorithms.MyMOGA;
-
-public class Experiments {
-	
-	//static Problem problem; // DTLZ1("Real", 100, 2);
-	//static Algorithm algorithm;
+public class ExperimentsMono {
 
 	public static void main(String[] args) {
 
-		Config.maxEvaluations = 50000;
-		Config.populationSize = 1000;
+		Config.maxEvaluations = 20000;
+		Config.populationSize = 100;
 		Config.archiveSize = Config.populationSize;
 		Config.dimension = 100;
-		
-		Problem problem = 
-			//	new ZDT4("ArrayReal",Config.dimension);
-			// new ZDT1("ArrayReal",Config.dimension); 
-			new DTLZ1("Real", Config.dimension, 2);
-		Algorithm algorithm =
-				//new project.algorithms.MyNSGAII(problem, false);
-				new MyMOGA(problem, true);
-		
+
+		Problem problem = new Griewank("Real", Config.dimension);
+		Algorithm algorithm = 
+				new MyGA(problem, false);
+		//		new MygGA(problem, false);
+
 		try {
-			
-			Experiments e = new Experiments();					
-			e.execute(algorithm, problem, "ParetoFronts/" + problem.getName() + ".txt", 10);
+
+			ExperimentsMono e = new ExperimentsMono();
+			e.execute(algorithm, problem, 10);
 
 			HashMap<String, ArrayList<Double>> map = new HashMap<String, ArrayList<Double>>();
 
-			for (int i = 0; i < e.hypervolumeList.size(); i++) {
-				if (e.hypervolumeList.get(i).isNaN()) {
-					e.hypervolumeList.remove(i);
-					e.spreadList.remove(i);
-					e.GDList.remove(i);
-					e.IGDList.remove(i);
+			for (int i = 0; i < e.fitnessList.size(); i++) {
+				if (e.fitnessList.get(i).isNaN()) {
+					e.fitnessList.remove(i);
+					e.averageFitnessList.remove(i);
 					i--;
 				}
 			}
-			for (int i = 0; i < e.spreadList.size(); i++) {
-				if (e.spreadList.get(i).isNaN()) {
-					e.hypervolumeList.remove(i);
-					e.spreadList.remove(i);
-					e.GDList.remove(i);
-					e.IGDList.remove(i);
+			for (int i = 0; i < e.averageFitnessList.size(); i++) {
+				if (e.averageFitnessList.get(i).isNaN()) {
+					e.fitnessList.remove(i);
+					e.averageFitnessList.remove(i);
 					i--;
 				}
 			}
-			
+
 			String fileName = algorithm.getClass().getSimpleName() + "_"
 					+ Config.populationSize + "_" + problem.getName() + "_"
-					+ Config.maxEvaluations ;
+					+ Config.maxEvaluations;
 			e.toFile(fileName);
 
-			map.put("GD", e.GDList);
-			map.put("IGD", e.IGDList);
-			map.put("hyperVolume", e.hypervolumeList);
-			map.put("spread", e.spreadList);
+			map.put("hyperVolume", e.fitnessList);
+			map.put("spread", e.averageFitnessList);
 
 			// show results
 			final project.gui.ExperimentsResults demo = new project.gui.ExperimentsResults(
@@ -111,60 +93,58 @@ public class Experiments {
 			1664075665, 718052456, -2047501526, -356259213, 1037534811,
 			1509458160, -437216524 };
 
-	public void execute(Algorithm algorithm, Problem problem, String fileParetoTrue, int numAmostras)
+	public void execute(Algorithm algorithm, Problem problem, int numAmostras)
 			throws ClassNotFoundException, JMException, IOException,
 			InstantiationException, IllegalAccessException {
-		QualityIndicator indicators;
 
-		Solution base = new Solution(problem);
-		base.setObjective(0, 11);
-		base.setObjective(1, 11);
-		
 		for (int i = 0; i < numAmostras; i++) {
 			int seed = seeds[i];
 
 			System.out.println("Amostra " + (i + 1) + " seed=" + seed);
-			jmetal.util.PseudoRandom.setRandomGenerator(new project.util.MyRandom(seed));
+			jmetal.util.PseudoRandom
+					.setRandomGenerator(new project.util.MyRandom(seed));
 
-			//algorithm = new MyNSGAII(problem, false);
+			// algorithm = new MyNSGAII(problem, false);
 
-			loadSetup(algorithm, fileParetoTrue);
-			indicators = (QualityIndicator) algorithm
-					.getInputParameter("indicators");
+			loadSetup(algorithm);
 
 			SolutionSet population = algorithm.execute();
 			// population.printObjectivesToFile(Config.DIR+"ObjectivesGA_"+i);
 			// population.printVariablesToFile(Config.DIR+"VariablesGA_"+i);
-			
-			//add list indicators
-			
-			if (indicators != null) {
-				//FastHypervolume hv = new FastHypervolume();
-				hypervolumeList.add(indicators.getHypervolume(population));
-				//hypervolumeList.add(hv.computeHypervolume(population, base));
-				spreadList.add(indicators.getSpread(population));
-				GDList.add(indicators.getGD(population));
-				IGDList.add(indicators.getIGD(population));
-			}
+
+			// add list indicators
+			fitnessList.add(population.get(0).getObjective(0));
+			averageFitnessList.add(calculateAverage(population));
+
 		}
 
-		//print
-		for(int p = 0; p < hypervolumeList.size(); p++)
+		// print
+		for (int p = 0; p < fitnessList.size(); p++) {
+			System.out.println((fitnessList.get(p) + " " + averageFitnessList
+					.get(p)).replace(".", ","));
+		}
+
+	}
+	
+	private double calculateAverage(SolutionSet set)
+	{
+		double resp = 0;
+		for(int i =0; i < set.size(); i++)
 		{
-			System.out.println((hypervolumeList.get(p)+" "+ spreadList.get(p)).replace(".", ","));
+			resp += set.get(i).getObjective(0);
 		}
-
+		
+		return resp/set.size();
 	}
 
 	public void toFile(String nameFile) throws IOException {
 		FileWriter fw = new FileWriter(nameFile + ".csv");
 
-		fw.write("Hypervolume;Spread;GD;IGD\n");
+		fw.write("Fitness;Average Fitness\n");
 
-		for (int i = 0; i < hypervolumeList.size(); i++) {
+		for (int i = 0; i < fitnessList.size(); i++) {
 
-			String line = (hypervolumeList.get(i) + ";" + spreadList.get(i) + ";"
-					+ GDList.get(i) + ";" + IGDList.get(i));
+			String line = (fitnessList.get(i) + ";" + averageFitnessList.get(i));
 			fw.write(line);
 			fw.write("\n");
 		}
@@ -172,23 +152,19 @@ public class Experiments {
 		fw.close();
 	}
 
-	private void loadSetup(Algorithm algorithm, String file) throws JMException {
+	private void loadSetup(Algorithm algorithm) throws JMException {
 
 		Problem problem = Config.problem;
 
 		Operator crossover;
 		Operator mutation;
 		Operator selection;
-		//Operator diversity;
+		// Operator diversity;
 
 		HashMap<String, Object> parameters;
-		QualityIndicator indicators = null;
-		if (file != null && new File(file).exists())
-			indicators = new QualityIndicator(problem, file);
 
 		algorithm.setInputParameter("populationSize", Config.populationSize);
 		algorithm.setInputParameter("maxEvaluations", Config.maxEvaluations);
-		algorithm.setInputParameter("indicators", indicators);
 		algorithm.setInputParameter("archiveSize", Config.archiveSize);
 
 		parameters = new HashMap<String, Object>();
@@ -210,13 +186,9 @@ public class Experiments {
 		algorithm.addOperator("crossover", crossover);
 		algorithm.addOperator("mutation", mutation);
 		algorithm.addOperator("selection", selection);
-
-		// return algorithm;
-		// return null;
 	}
-	
-	protected ArrayList<Double> hypervolumeList = new ArrayList<Double>();
-	protected ArrayList<Double> spreadList = new ArrayList<Double>();
-	protected ArrayList<Double> GDList = new ArrayList<Double>();
-	protected ArrayList<Double> IGDList = new ArrayList<Double>();
+
+	protected ArrayList<Double> fitnessList = new ArrayList<Double>();
+	protected ArrayList<Double> averageFitnessList = new ArrayList<Double>();
+
 }

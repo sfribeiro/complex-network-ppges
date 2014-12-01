@@ -1,18 +1,19 @@
 package optimization;
 
-import org.graphstream.graph.implementations.MultiGraph;
-
-import utils.Eigenvalues;
-import utils.Laplacian;
 import gstream.GraphViewer;
-import metrics.AlgebraicConnectivity;
-import metrics.ClusteringCoefficient;
-import metrics.Diameter;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.encodings.solutionType.BinarySolutionType;
 import jmetal.encodings.variable.Binary;
 import jmetal.util.JMException;
+import metrics.AlgebraicConnectivity;
+import metrics.ClusteringCoefficient;
+import metrics.Diameter;
+
+import org.graphstream.graph.implementations.MultiGraph;
+
+import utils.Eigenvalues;
+import utils.Laplacian;
 
 public class CCD extends Problem{
 
@@ -47,6 +48,7 @@ public class CCD extends Problem{
 		}
 	} 
 	
+	@Override
 	public void evaluate(Solution solution) throws JMException {
 		Binary x = (Binary) solution.getDecisionVariables()[0];
 
@@ -125,6 +127,7 @@ public class CCD extends Problem{
 		return graphViewer.getGrafo();
 	}
 	
+	@Override
 	public void evaluateConstraints(Solution solution) throws JMException {
 
 		Binary x = (Binary) solution.getDecisionVariables()[0];

@@ -1,15 +1,16 @@
 package main;
 
+import gstream.GraphViewer;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
-import utils.DegreeDistribution;
-import gstream.GraphViewer;
 import metrics.ClusteringCoefficient;
 import metrics.Diameter;
 import models.Barabasi_Albert;
 import models.Erdos_Renyi;
 import models.Watts_Strogatz_2;
+import utils.DegreeDistribution;
 
 public class Experiments {
 

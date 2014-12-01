@@ -3,32 +3,22 @@ package project.algorithms;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import javax.swing.JFrame;
-
-import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.util.JMException;
 import jmetal.util.comparators.ObjectiveComparator;
-import project.MethaPopulation;
-import project.MethaPopulationMono;
-import project.gui.GenericMonitor;
 
-public class MyGA extends Algorithm {
+public class MygGA extends MyAlgorithm {
 
-	private static final long serialVersionUID = -5791329308513901741L;
-	protected GenericMonitor view_;
-	protected boolean gui_ = false;
-	protected MethaPopulationMono struct;
-	protected String[] demes_;
 	protected String[] metrics_ = new String[] { "Fitness", "Average Fitness" };
 
-	public MyGA(Problem problem, boolean gui) {
-		super(problem);
-		this.gui_ = gui;
-	} // GGA
+	public MygGA(Problem problem, boolean gui) {
+		super(problem, gui);
+	}
+
+	private static final long serialVersionUID = -1777044651924111519L;
 
 	@Override
 	public SolutionSet execute() throws JMException, ClassNotFoundException {
@@ -72,30 +62,58 @@ public class MyGA extends Algorithm {
 			population.add(newIndividual);
 		} // for
 
-		struct = new MethaPopulationMono(population, problem_, 10,
-				selectionOperator, mutationOperator, crossoverOperator, "Full");
-		population = struct.union();
-		int numDemes = struct.getNumDemes();
-
-		demes_ = new String[numDemes];
-		for (int i = 0; i < numDemes; i++) {
-			demes_[i] = "D" + i;
-		}
-
 		if (gui_) {
-			startMonitor();
+			startMonitor(metrics_);
 		}
 
 		// Sort population
 		population.sort(comparator);
 		while (evaluations < maxEvaluations) {
+			if ((evaluations % 10) == 0) {
+				System.out.println(evaluations + ": "
+						+ population.get(0).getObjective(0));
+			} //
 
-			struct.executeByGA();
-			struct.migration(0.9);
-			evaluations += populationSize;
-			population = struct.union();
-			if (evaluations % 5000 == 0)
-				struct.groupSolutions(population);
+			// Copy the best two individuals to the offspring population
+			offspringPopulation.add(new Solution(population.get(0)));
+			offspringPopulation.add(new Solution(population.get(1)));
+
+			// Reproductive cycle
+			for (int i = 0; i < (populationSize / 2 - 1); i++) {
+				// Selection
+				Solution[] parents = new Solution[2];
+
+				parents[0] = (Solution) selectionOperator.execute(population);
+				parents[1] = (Solution) selectionOperator.execute(population);
+
+				// Crossover
+				Solution[] offspring = (Solution[]) crossoverOperator
+						.execute(parents);
+
+				// Mutation
+				mutationOperator.execute(offspring[0]);
+				mutationOperator.execute(offspring[1]);
+
+				// Evaluation of the new individual
+				problem_.evaluate(offspring[0]);
+				problem_.evaluate(offspring[1]);
+
+				evaluations += 2;
+
+				// Replacement: the two new individuals are inserted in the
+				// offspring
+				// population
+				offspringPopulation.add(offspring[0]);
+				offspringPopulation.add(offspring[1]);
+			} // for
+
+			// The offspring population becomes the new current population
+			population.clear();
+			for (int i = 0; i < populationSize; i++) {
+				population.add(offspringPopulation.get(i));
+			}
+			offspringPopulation.clear();
+			population.sort(comparator);
 
 			// metrics result
 			HashMap<String, Double> metricsResults = new HashMap<String, Double>();
@@ -109,10 +127,15 @@ public class MyGA extends Algorithm {
 			if (gui_) {
 				updateMonitor(struct, metricsResults, evaluations);
 			}
-
 		} // while
 
-		// metrics result
+		// // Return a population with the best individual
+		// SolutionSet resultPopulation = new SolutionSet(1);
+		// resultPopulation.add(population.get(0));
+		//
+		// System.out.println("Evaluations: " + evaluations);
+		
+		// metrics result		
 		HashMap<String, Double> metricsResults = new HashMap<String, Double>();
 
 		double fitness = population.get(0).getObjective(0);
@@ -126,30 +149,6 @@ public class MyGA extends Algorithm {
 		}
 
 		return population;
-	} // execute
-
-	protected void startMonitor() {
-		view_ = new GenericMonitor(this.getClass().getSimpleName(), demes_,
-				metrics_, problem_);
-		view_.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		view_.pack();
-		view_.setLocationRelativeTo(null);
-		view_.setVisible(true);
-		view_.setSize(1400, 600);
 	}
 
-	protected void updateMonitor(MethaPopulation struct,
-			HashMap<String, Double> metricsResults, int evaluations) {
-
-		HashMap<String, Object> dados = new HashMap<String, Object>();
-		for (int i = 0; i < demes_.length; i++) {
-			dados.put(demes_[i], struct.getDeme(i));
-		}
-
-		for (String s : metricsResults.keySet()) {
-			dados.put(s, metricsResults.get(s));
-		}
-
-		view_.update(dados, evaluations);
-	}
 }
