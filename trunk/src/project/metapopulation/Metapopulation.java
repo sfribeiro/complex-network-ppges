@@ -1,27 +1,26 @@
-package project;
+package project.metapopulation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import project.util.RouletteSelection;
+import org.apache.commons.math3.distribution.PoissonDistribution;
+
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.metaheuristics.spea2.SPEA2;
-import jmetal.operators.selection.RandomSelection;
-import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.Distance;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
 import jmetal.util.Spea2Fitness;
 import jmetal.util.comparators.CrowdingComparator;
 import jmetal.util.comparators.ObjectiveComparator;
+import project.Config;
 
-public class MethaPopulation {
+public class Metapopulation {
 
 	protected Problem problem;
 	protected int populationSize = 0;
@@ -37,9 +36,9 @@ public class MethaPopulation {
 
 	protected double sum = 0;
 
-	public MethaPopulation(SolutionSet set, Problem problem,
-			Operator selection, Operator mutation, Operator crossover,
-			String type) throws ClassNotFoundException, JMException {
+	public Metapopulation(SolutionSet set, Problem problem, Operator selection,
+			Operator mutation, Operator crossover, String type)
+			throws ClassNotFoundException, JMException {
 		this.problem = problem;
 		// TODO define number
 		this.numDemes = 100;
@@ -56,8 +55,8 @@ public class MethaPopulation {
 
 		init(type);
 	}
-	
-	public MethaPopulation(SolutionSet set, Problem problem, int numDemes,
+
+	public Metapopulation(SolutionSet set, Problem problem, int numDemes,
 			Operator selection, Operator mutation, Operator crossover,
 			String type) throws ClassNotFoundException, JMException {
 		this.problem = problem;
@@ -93,9 +92,7 @@ public class MethaPopulation {
 			Full();
 		} else if (type.equals("Ring")) {
 			Ring();
-		}
-		else
-		{
+		} else {
 			Full();
 		}
 	}
@@ -116,9 +113,9 @@ public class MethaPopulation {
 				if (node2 != node && !resp[node][node2]) {
 					resp[node2][node] = true;
 					resp[node][node2] = true;
-				}
-
-				links++;
+					
+					links++;
+				}				
 			}
 		}
 
@@ -340,7 +337,7 @@ public class MethaPopulation {
 		return Config.random.nextInt(demes.size());
 	}
 
-	public void migration(double tax) throws JMException {
+	public void migrationRandom(double tax) throws JMException {
 		SolutionSet deme;
 		SolutionSet vizinho;
 
@@ -350,24 +347,70 @@ public class MethaPopulation {
 		for (int i = 0; i < demes.size(); i++) {
 			deme = demes.get(i);
 
-			for (int n = 0; n < deme.size(); n++) {
+			ArrayList<Integer> vizinhos = getVizinhos(i);
+			double e = vizinhos.size() * tax * deme.size();
 
-				if (Config.random.nextDouble() < tax) {
+			PoissonDistribution poisson = new PoissonDistribution(e);
+			int emigrantes = poisson.inverseCumulativeProbability(Config.random
+					.nextDouble());
+			
+			if(emigrantes > deme.size()) emigrantes = deme.size();
 
-					out = Config.random.nextInt(deme.size());
-					sOut = deme.get(out);
-					deme.remove(out);
+			for (int n = 0; n < emigrantes; n++) {
 
-					ArrayList<Integer> vizinhos = getVizinhos(i);
-					int nVizinho = Config.random.nextInt(vizinhos.size());
-					vizinho = demes.get(nVizinho);
-					in = Config.random.nextInt(vizinho.size());
-					sIn = vizinho.get(in);
-					vizinho.remove(in);
+				out = Config.random.nextInt(deme.size());
+				sOut = deme.get(out);
+				deme.remove(out);
 
-					deme.add(sIn);
-					vizinho.add(sOut);
-				}
+				int nVizinho = Config.random.nextInt(vizinhos.size());
+				vizinho = demes.get(nVizinho);
+				in = Config.random.nextInt(vizinho.size());
+				sIn = vizinho.get(in);
+				vizinho.remove(in);
+
+				deme.add(sIn);
+				vizinho.add(sOut);
+			}
+		}
+	}
+	
+	public void migrationBest(double tax) throws JMException {
+		SolutionSet deme;
+		SolutionSet vizinho;
+
+		int out = -1, in = -1;
+		Solution sOut, sIn;
+		
+		Ranking ranking;
+		
+		for (int i = 0; i < demes.size(); i++) {
+			deme = demes.get(i);
+
+			ArrayList<Integer> vizinhos = getVizinhos(i);
+			double e = vizinhos.size() * tax * deme.size();
+
+			PoissonDistribution poisson = new PoissonDistribution(e);
+			int emigrantes = poisson.inverseCumulativeProbability(Config.random
+					.nextDouble());
+			
+			if(emigrantes > deme.size()) emigrantes = deme.size();
+
+			for (int n = 0; n < emigrantes; n++) {
+
+				ranking = new Ranking(deme);
+				SolutionSet front = ranking.getSubfront(0);
+				
+				sOut = front.get(Config.random.nextInt(front.size()));
+				deme.remove(out);
+
+				int nVizinho = Config.random.nextInt(vizinhos.size());
+				vizinho = demes.get(nVizinho);
+				in = Config.random.nextInt(vizinho.size());
+				sIn = vizinho.get(in);
+				vizinho.remove(in);
+
+				deme.add(sIn);
+				vizinho.add(sOut);
 			}
 		}
 	}

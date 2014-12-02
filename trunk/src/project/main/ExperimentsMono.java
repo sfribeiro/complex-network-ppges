@@ -1,4 +1,4 @@
-package project;
+package project.main;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,31 +7,35 @@ import java.util.HashMap;
 
 import javax.swing.JFrame;
 
-import org.jfree.ui.RefineryUtilities;
-
-import project.algorithms.MyGA;
-import project.algorithms.MygGA;
 import jmetal.core.Algorithm;
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.SolutionSet;
-import jmetal.metaheuristics.singleObjective.geneticAlgorithm.gGA;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.singleObjective.Griewank;
+import jmetal.problems.singleObjective.Rosenbrock;
 import jmetal.util.JMException;
+
+import org.jfree.ui.RefineryUtilities;
+
+import project.Config;
+import project.algorithms.MyGA;
+import project.algorithms.MyGAoriginal;
 
 public class ExperimentsMono {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException {
 
-		Config.maxEvaluations = 20000;
-		Config.populationSize = 100;
+		Config.maxEvaluations = 100000;
+		Config.populationSize = 1000;
 		Config.archiveSize = Config.populationSize;
 		Config.dimension = 100;
 
-		Problem problem = new Griewank("Real", Config.dimension);
+		Problem problem = 
+				new Griewank("Real", Config.dimension);
+		//		new Rosenbrock("Real", Config.dimension);
 		Algorithm algorithm = 
 				new MyGA(problem, false);
 		//		new MygGA(problem, false);
@@ -39,9 +43,7 @@ public class ExperimentsMono {
 		try {
 
 			ExperimentsMono e = new ExperimentsMono();
-			e.execute(algorithm, problem, 10);
-
-			HashMap<String, ArrayList<Double>> map = new HashMap<String, ArrayList<Double>>();
+			e.execute(algorithm, problem, 30);
 
 			for (int i = 0; i < e.fitnessList.size(); i++) {
 				if (e.fitnessList.get(i).isNaN()) {
@@ -59,10 +61,11 @@ public class ExperimentsMono {
 			}
 
 			String fileName = algorithm.getClass().getSimpleName() + "_"
-					+ Config.populationSize + "_" + problem.getName() + "_"
+					+ Config.populationSize + "_" + problem.getClass().getSimpleName() + "_"
 					+ Config.maxEvaluations;
 			e.toFile(fileName);
 
+			HashMap<String, ArrayList<Double>> map = new HashMap<String, ArrayList<Double>>();
 			map.put("hyperVolume", e.fitnessList);
 			map.put("spread", e.averageFitnessList);
 
@@ -111,10 +114,13 @@ public class ExperimentsMono {
 			SolutionSet population = algorithm.execute();
 			// population.printObjectivesToFile(Config.DIR+"ObjectivesGA_"+i);
 			// population.printVariablesToFile(Config.DIR+"VariablesGA_"+i);
+			
+			double best = population.get(0).getObjective(0);
+			double avg = calculateAverage(population);
 
 			// add list indicators
-			fitnessList.add(population.get(0).getObjective(0));
-			averageFitnessList.add(calculateAverage(population));
+			fitnessList.add(best);
+			averageFitnessList.add(avg);
 
 		}
 
@@ -137,8 +143,9 @@ public class ExperimentsMono {
 		return resp/set.size();
 	}
 
+	String DIR = "Results\\";
 	public void toFile(String nameFile) throws IOException {
-		FileWriter fw = new FileWriter(nameFile + ".csv");
+		FileWriter fw = new FileWriter(DIR + nameFile + ".csv");
 
 		fw.write("Fitness;Average Fitness\n");
 

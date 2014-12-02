@@ -4,16 +4,16 @@ import java.util.HashMap;
 
 import javax.swing.JFrame;
 
-import project.MethaPopulation;
-import project.gui.GenericMonitor;
 import jmetal.core.Algorithm;
 import jmetal.core.Problem;
+import project.gui.GenericMonitor;
+import project.metapopulation.Metapopulation;
 
 public abstract class MyAlgorithm extends Algorithm {
 
 	protected GenericMonitor view_;
 	protected boolean gui_ = false;
-	protected MethaPopulation struct;
+	protected Metapopulation struct;
 	protected String[] demes_;
 	
 	public MyAlgorithm(Problem problem, boolean gui) {
@@ -33,7 +33,7 @@ public abstract class MyAlgorithm extends Algorithm {
 		view_.setSize(1400, 600);
 	}
 
-	protected void updateMonitor(MethaPopulation struct,
+	protected void updateMonitor(Metapopulation struct,
 			HashMap<String, Double> metricsResults, int evaluations) {
 
 		HashMap<String, Object> dados = new HashMap<String, Object>();

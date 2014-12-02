@@ -1,27 +1,15 @@
-package project;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
+package project.metapopulation;
 
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.metaheuristics.spea2.SPEA2;
-import jmetal.util.Distance;
 import jmetal.util.JMException;
-import jmetal.util.Ranking;
-import jmetal.util.Spea2Fitness;
-import jmetal.util.comparators.CrowdingComparator;
 import jmetal.util.comparators.ObjectiveComparator;
 
-public class MethaPopulationMono extends MethaPopulation {
+public class MetapopulationMono extends Metapopulation {
 
-	public MethaPopulationMono(SolutionSet set, Problem problem, int numDemes,
+	public MetapopulationMono(SolutionSet set, Problem problem, int numDemes,
 			Operator selection, Operator mutation, Operator crossover,
 			String type) throws ClassNotFoundException, JMException {
 		super(set, problem, numDemes, selection, mutation, crossover, type);

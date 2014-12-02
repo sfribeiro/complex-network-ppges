@@ -1,4 +1,4 @@
-package project;
+package project.util;
 
 import gstream.GraphViewer;
 
