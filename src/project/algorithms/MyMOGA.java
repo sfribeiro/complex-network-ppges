@@ -2,8 +2,6 @@ package project.algorithms;
 
 import java.util.HashMap;
 
-import javax.swing.JFrame;
-
 import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
@@ -11,8 +9,7 @@ import jmetal.core.SolutionSet;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.util.JMException;
 import jmetal.util.Ranking;
-import project.MethaPopulation;
-import project.gui.GenericMonitor;
+import project.metapopulation.Metapopulation;
 
 public class MyMOGA extends MyAlgorithm {
 
@@ -64,7 +61,7 @@ public class MyMOGA extends MyAlgorithm {
 			population.add(newSolution);
 		}
 
-		struct = new MethaPopulation(population,problem_,selection, mutation, crossover, "Full");
+		struct = new Metapopulation(population,problem_,selection, mutation, crossover, "BA");
 		population = struct.union();
 		int numDemes = struct.getNumDemes();
 
@@ -81,10 +78,10 @@ public class MyMOGA extends MyAlgorithm {
 		while (evaluations < maxEvaluations) {
 
 			struct.executeByNSGAII();
-			struct.migration(0.1);			
+			struct.migrationRandom(0.9);			
 			evaluations += populationSize;
 			population = struct.union();
-			if(evaluations % 5000 == 0) struct.groupSolutions(population);
+			if(evaluations % 10000 == 0) struct.groupSolutions(population);
 
 			// metrics result
 			HashMap<String, Double> metricsResults = new HashMap<String, Double>();

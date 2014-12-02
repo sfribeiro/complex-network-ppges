@@ -12,16 +12,16 @@ import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.util.JMException;
 import jmetal.util.comparators.ObjectiveComparator;
-import project.MethaPopulation;
-import project.MethaPopulationMono;
 import project.gui.GenericMonitor;
+import project.metapopulation.Metapopulation;
+import project.metapopulation.MetapopulationMono;
 
 public class MyGA extends Algorithm {
 
 	private static final long serialVersionUID = -5791329308513901741L;
 	protected GenericMonitor view_;
 	protected boolean gui_ = false;
-	protected MethaPopulationMono struct;
+	protected MetapopulationMono struct;
 	protected String[] demes_;
 	protected String[] metrics_ = new String[] { "Fitness", "Average Fitness" };
 
@@ -72,7 +72,7 @@ public class MyGA extends Algorithm {
 			population.add(newIndividual);
 		} // for
 
-		struct = new MethaPopulationMono(population, problem_, 10,
+		struct = new MetapopulationMono(population, problem_, 100,
 				selectionOperator, mutationOperator, crossoverOperator, "Full");
 		population = struct.union();
 		int numDemes = struct.getNumDemes();
@@ -91,7 +91,7 @@ public class MyGA extends Algorithm {
 		while (evaluations < maxEvaluations) {
 
 			struct.executeByGA();
-			struct.migration(0.9);
+			struct.migrationRandom(0.9);
 			evaluations += populationSize;
 			population = struct.union();
 			if (evaluations % 5000 == 0)
@@ -138,7 +138,7 @@ public class MyGA extends Algorithm {
 		view_.setSize(1400, 600);
 	}
 
-	protected void updateMonitor(MethaPopulation struct,
+	protected void updateMonitor(Metapopulation struct,
 			HashMap<String, Double> metricsResults, int evaluations) {
 
 		HashMap<String, Object> dados = new HashMap<String, Object>();

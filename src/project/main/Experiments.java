@@ -1,4 +1,4 @@
-package project;
+package project.main;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,19 +13,20 @@ import jmetal.core.Operator;
 import jmetal.core.Problem;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.metaheuristics.nsgaII.NSGAII;
 import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.DTLZ.DTLZ1;
-import jmetal.problems.ZDT.ZDT1;
+import jmetal.problems.DTLZ.DTLZ2;
+import jmetal.problems.DTLZ.DTLZ7;
 import jmetal.problems.ZDT.ZDT4;
 import jmetal.qualityIndicator.QualityIndicator;
 import jmetal.qualityIndicator.fastHypervolume.FastHypervolume;
 import jmetal.util.JMException;
-import optimization.MyNSGAII;
 
 import org.jfree.ui.RefineryUtilities;
+
+import project.Config;
 import project.algorithms.MyMOGA;
 
 public class Experiments {
@@ -35,23 +36,25 @@ public class Experiments {
 
 	public static void main(String[] args) {
 
-		Config.maxEvaluations = 50000;
+		Config.maxEvaluations = 100000;
 		Config.populationSize = 1000;
 		Config.archiveSize = Config.populationSize;
-		Config.dimension = 100;
+		Config.dimension = 10;
 		
 		Problem problem = 
 			//	new ZDT4("ArrayReal",Config.dimension);
 			// new ZDT1("ArrayReal",Config.dimension); 
-			new DTLZ1("Real", Config.dimension, 2);
+			//	new DTLZ1("Real", Config.dimension, 2);
+				new DTLZ7("Real", Config.dimension, 2);
+		
 		Algorithm algorithm =
-				//new project.algorithms.MyNSGAII(problem, false);
-				new MyMOGA(problem, true);
+				new project.algorithms.MyNSGAII(problem, true);
+				//new MyMOGA(problem, true);
 		
 		try {
 			
 			Experiments e = new Experiments();					
-			e.execute(algorithm, problem, "ParetoFronts/" + problem.getName() + ".txt", 10);
+			e.execute(algorithm, problem, "ParetoFronts/" + problem.getName() + ".txt", 5);
 
 			HashMap<String, ArrayList<Double>> map = new HashMap<String, ArrayList<Double>>();
 
@@ -139,9 +142,9 @@ public class Experiments {
 			//add list indicators
 			
 			if (indicators != null) {
-				//FastHypervolume hv = new FastHypervolume();
-				hypervolumeList.add(indicators.getHypervolume(population));
-				//hypervolumeList.add(hv.computeHypervolume(population, base));
+				FastHypervolume hv = new FastHypervolume();
+				//hypervolumeList.add(indicators.getHypervolume(population));
+				hypervolumeList.add(hv.computeHypervolume(population, base));
 				spreadList.add(indicators.getSpread(population));
 				GDList.add(indicators.getGD(population));
 				IGDList.add(indicators.getIGD(population));
@@ -155,9 +158,11 @@ public class Experiments {
 		}
 
 	}
+	
+	String DIR = "Results\\";
 
 	public void toFile(String nameFile) throws IOException {
-		FileWriter fw = new FileWriter(nameFile + ".csv");
+		FileWriter fw = new FileWriter(DIR + nameFile + ".csv");
 
 		fw.write("Hypervolume;Spread;GD;IGD\n");
 

@@ -10,11 +10,11 @@ import jmetal.core.SolutionSet;
 import jmetal.util.JMException;
 import jmetal.util.comparators.ObjectiveComparator;
 
-public class MygGA extends MyAlgorithm {
+public class MyGAoriginal extends MyAlgorithm {
 
 	protected String[] metrics_ = new String[] { "Fitness", "Average Fitness" };
 
-	public MygGA(Problem problem, boolean gui) {
+	public MyGAoriginal(Problem problem, boolean gui) {
 		super(problem, gui);
 	}
 
@@ -69,11 +69,7 @@ public class MygGA extends MyAlgorithm {
 		// Sort population
 		population.sort(comparator);
 		while (evaluations < maxEvaluations) {
-			if ((evaluations % 10) == 0) {
-				System.out.println(evaluations + ": "
-						+ population.get(0).getObjective(0));
-			} //
-
+			
 			// Copy the best two individuals to the offspring population
 			offspringPopulation.add(new Solution(population.get(0)));
 			offspringPopulation.add(new Solution(population.get(1)));
@@ -115,16 +111,16 @@ public class MygGA extends MyAlgorithm {
 			offspringPopulation.clear();
 			population.sort(comparator);
 
-			// metrics result
-			HashMap<String, Double> metricsResults = new HashMap<String, Double>();
-
-			double fitness = population.get(0).getObjective(0);
-			double averageFitness = 0;
-
-			metricsResults.put("Fitness", fitness);
-			metricsResults.put("Average Fitness", averageFitness);
-
 			if (gui_) {
+				// metrics result
+				HashMap<String, Double> metricsResults = new HashMap<String, Double>();
+
+				double fitness = population.get(0).getObjective(0);
+				double averageFitness = 0;
+
+				metricsResults.put("Fitness", fitness);
+				metricsResults.put("Average Fitness", averageFitness);
+				
 				updateMonitor(struct, metricsResults, evaluations);
 			}
 		} // while
@@ -135,16 +131,16 @@ public class MygGA extends MyAlgorithm {
 		//
 		// System.out.println("Evaluations: " + evaluations);
 		
-		// metrics result		
-		HashMap<String, Double> metricsResults = new HashMap<String, Double>();
-
-		double fitness = population.get(0).getObjective(0);
-		double averageFitness = 0;
-
-		metricsResults.put("Fitness", fitness);
-		metricsResults.put("Average Fitness", averageFitness);
-
 		if (gui_) {
+			// metrics result		
+			HashMap<String, Double> metricsResults = new HashMap<String, Double>();
+
+			double fitness = population.get(0).getObjective(0);
+			double averageFitness = 0;
+
+			metricsResults.put("Fitness", fitness);
+			metricsResults.put("Average Fitness", averageFitness);
+			
 			updateMonitor(struct, metricsResults, evaluations);
 		}
 
