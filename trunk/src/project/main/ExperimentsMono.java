@@ -15,8 +15,12 @@ import jmetal.operators.crossover.CrossoverFactory;
 import jmetal.operators.mutation.MutationFactory;
 import jmetal.operators.selection.SelectionFactory;
 import jmetal.problems.singleObjective.Griewank;
+import jmetal.problems.singleObjective.Rastrigin;
 import jmetal.problems.singleObjective.Rosenbrock;
+import jmetal.problems.singleObjective.Sphere;
+import jmetal.problems.singleObjective.TSP;
 import jmetal.util.JMException;
+import jmetal.util.comparators.ObjectiveComparator;
 
 import org.jfree.ui.RefineryUtilities;
 
@@ -26,21 +30,33 @@ import project.algorithms.MyGAoriginal;
 
 public class ExperimentsMono {
 
-	public static void main(String[] args) throws ClassNotFoundException {
-
-		Config.maxEvaluations = 100000;
-		Config.populationSize = 1000;
-		Config.archiveSize = Config.populationSize;
-		Config.dimension = 100;
-
-		Problem problem = 
-				new Griewank("Real", Config.dimension);
-		//		new Rosenbrock("Real", Config.dimension);
-		Algorithm algorithm = 
-				new MyGA(problem, false);
-		//		new MygGA(problem, false);
+	public static void main(String[] args) {
 
 		try {
+			Config.maxEvaluations = 100000;
+			Config.populationSize = 1000;
+			Config.archiveSize = Config.populationSize;
+			Config.dimension = 50;
+			
+			double migration = 0.1;
+			int numDemes = 100;
+			String model = "ER";
+
+			Problem problem =
+					//new Griewank("Real", Config.dimension);
+					//new Rosenbrock("Real", Config.dimension);
+					new Sphere("Real", Config.dimension);
+					//new Rastrigin("Real", Config.dimension);
+			
+			Algorithm algorithm = 
+					new MyGA(problem,numDemes,migration,model, false);
+					//new MyGAoriginal(problem,0.1, false);
+			
+			String fileName = algorithm.getClass().getSimpleName()
+					+ "_"+model+"_m"+migration+"_" + Config.populationSize + "_Nd" + numDemes + "_"
+					+ problem.getClass().getSimpleName() + "_Dim"
+					+ Config.dimension + "_" + Config.maxEvaluations;
+			
 
 			ExperimentsMono e = new ExperimentsMono();
 			e.execute(algorithm, problem, 30);
@@ -60,9 +76,6 @@ public class ExperimentsMono {
 				}
 			}
 
-			String fileName = algorithm.getClass().getSimpleName() + "_"
-					+ Config.populationSize + "_" + problem.getClass().getSimpleName() + "_"
-					+ Config.maxEvaluations;
 			e.toFile(fileName);
 
 			HashMap<String, ArrayList<Double>> map = new HashMap<String, ArrayList<Double>>();
@@ -114,7 +127,8 @@ public class ExperimentsMono {
 			SolutionSet population = algorithm.execute();
 			// population.printObjectivesToFile(Config.DIR+"ObjectivesGA_"+i);
 			// population.printVariablesToFile(Config.DIR+"VariablesGA_"+i);
-			
+
+			population.sort(new ObjectiveComparator(0));
 			double best = population.get(0).getObjective(0);
 			double avg = calculateAverage(population);
 
@@ -131,19 +145,18 @@ public class ExperimentsMono {
 		}
 
 	}
-	
-	private double calculateAverage(SolutionSet set)
-	{
+
+	private double calculateAverage(SolutionSet set) {
 		double resp = 0;
-		for(int i =0; i < set.size(); i++)
-		{
+		for (int i = 0; i < set.size(); i++) {
 			resp += set.get(i).getObjective(0);
 		}
-		
-		return resp/set.size();
+
+		return resp / set.size();
 	}
 
 	String DIR = "Results\\";
+
 	public void toFile(String nameFile) throws IOException {
 		FileWriter fw = new FileWriter(DIR + nameFile + ".csv");
 
@@ -181,7 +194,7 @@ public class ExperimentsMono {
 				parameters);
 
 		parameters = new HashMap<String, Object>();
-		parameters.put("probability", 1.0 / problem.getNumberOfVariables());
+		parameters.put("probability", 0.05);//1.0 / problem.getNumberOfVariables());
 		parameters.put("distributionIndex", 20.0);
 		mutation = MutationFactory.getMutationOperator("PolynomialMutation",
 				parameters);

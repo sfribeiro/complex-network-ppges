@@ -20,7 +20,7 @@ public class MyMOGA extends MyAlgorithm {
 			"IGD", "Epsilon" };
 
 	public MyMOGA(Problem problem, boolean gui) {
-		super(problem,gui);
+		super(problem,100, 0.1,"", gui);
 	}
 
 	@Override

@@ -13,9 +13,10 @@ import jmetal.util.comparators.ObjectiveComparator;
 public class MyGAoriginal extends MyAlgorithm {
 
 	protected String[] metrics_ = new String[] { "Fitness", "Average Fitness" };
-
-	public MyGAoriginal(Problem problem, boolean gui) {
-		super(problem, gui);
+	double elitismo = 0.1;
+	
+	public MyGAoriginal(Problem problem, double elitismo, boolean gui) {
+		super(problem, 1, 0.1, "",gui);
 	}
 
 	private static final long serialVersionUID = -1777044651924111519L;
@@ -62,6 +63,11 @@ public class MyGAoriginal extends MyAlgorithm {
 			population.add(newIndividual);
 		} // for
 
+		demes_ = new String[numDemes];
+		for (int i = 0; i < numDemes; i++) {
+			demes_[i] = "Population";
+		}
+		
 		if (gui_) {
 			startMonitor(metrics_);
 		}
@@ -71,11 +77,14 @@ public class MyGAoriginal extends MyAlgorithm {
 		while (evaluations < maxEvaluations) {
 			
 			// Copy the best two individuals to the offspring population
-			offspringPopulation.add(new Solution(population.get(0)));
-			offspringPopulation.add(new Solution(population.get(1)));
+			for(int i = 0; i < elitismo * populationSize; i++){
+				offspringPopulation.add(new Solution(population.get(i)));
+			}
+			//offspringPopulation.add(new Solution(population.get(1)));
 
 			// Reproductive cycle
-			for (int i = 0; i < (populationSize / 2 - 1); i++) {
+			//for (int i = 0; i < (populationSize / 2 - 1); i++) {
+			for (; offspringPopulation.size() < populationSize; ) {
 				// Selection
 				Solution[] parents = new Solution[2];
 
@@ -116,12 +125,12 @@ public class MyGAoriginal extends MyAlgorithm {
 				HashMap<String, Double> metricsResults = new HashMap<String, Double>();
 
 				double fitness = population.get(0).getObjective(0);
-				double averageFitness = 0;
+				double averageFitness = averageObjective(0, population);
 
 				metricsResults.put("Fitness", fitness);
 				metricsResults.put("Average Fitness", averageFitness);
 				
-				updateMonitor(struct, metricsResults, evaluations);
+				updateMonitor(population, metricsResults, evaluations);
 			}
 		} // while
 
@@ -136,12 +145,12 @@ public class MyGAoriginal extends MyAlgorithm {
 			HashMap<String, Double> metricsResults = new HashMap<String, Double>();
 
 			double fitness = population.get(0).getObjective(0);
-			double averageFitness = 0;
+			double averageFitness = averageObjective(0, population);
 
 			metricsResults.put("Fitness", fitness);
 			metricsResults.put("Average Fitness", averageFitness);
 			
-			updateMonitor(struct, metricsResults, evaluations);
+			updateMonitor(population, metricsResults, evaluations);
 		}
 
 		return population;
