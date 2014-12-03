@@ -2,6 +2,7 @@ package project.metapopulation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,11 +20,12 @@ import jmetal.util.Spea2Fitness;
 import jmetal.util.comparators.CrowdingComparator;
 import jmetal.util.comparators.ObjectiveComparator;
 import project.Config;
+import project.util.KNN;
 
 public class Metapopulation {
 
 	protected Problem problem;
-	protected int populationSize = 0;
+	protected int demeSize = 0;
 	protected List<SolutionSet> demes;
 	protected double[] fitness;
 	protected int numDemes = 0;
@@ -43,7 +45,7 @@ public class Metapopulation {
 		// TODO define number
 		this.numDemes = 100;
 		this.demes = new Vector<SolutionSet>(numDemes);
-		this.populationSize = set.size() / numDemes;
+		this.demeSize = set.size() / numDemes;
 		groupSolutions(set);
 
 		this.fitness = new double[numDemes];
@@ -60,10 +62,9 @@ public class Metapopulation {
 			Operator selection, Operator mutation, Operator crossover,
 			String type) throws ClassNotFoundException, JMException {
 		this.problem = problem;
-		// TODO define number
 		this.numDemes = numDemes;
 		this.demes = new Vector<SolutionSet>(numDemes);
-		this.populationSize = set.size() / numDemes;
+		this.demeSize = set.size() / numDemes;
 		groupSolutions(set);
 
 		this.fitness = new double[numDemes];
@@ -84,24 +85,103 @@ public class Metapopulation {
 		return numDemes;
 	}
 
-	protected void init(String type) {
+	public void init(String type) {
 		this.type = type;
 		if (type.equals("BA")) {
-			BA();
+			BA(2);
 		} else if (type.equals("Full")) {
 			Full();
 		} else if (type.equals("Ring")) {
 			Ring();
+		} else if (type.equals("WS")) {
+			WS(numDemes,2,0.01);
+		} else if (type.equals("ER")) {
+			ER(numDemes,0.2);
 		} else {
 			Full();
 		}
 	}
+	
+	protected void ER(int numberNodes,double p)
+	{
+		boolean[][] resp = new boolean[numberNodes][numberNodes];
 
-	protected void BA() {
+		for (int i = 0; i < numberNodes - 1; i++) {
+			for (int j = i + 1; j < numberNodes; j++) {
+				if (Config.random.nextDouble() < p) {
+					resp[i][j] = true;
+					resp[j][i] = true;
+				}
+			}
+		}
+
+		vizinhos = resp;
+	}
+	
+	protected void WS(int N, int K, double beta){
+		if (K <= 1) {
+			new Exception("Valor de K inválido!");
+		}
+
+		boolean[][] resp = new boolean[N][N];
+
+		// create initial edges - circle
+		for (int i = 0; i < N; i++) {
+
+			for (int j = 1; j <= (K / 2); j++) {
+
+				resp[i][(i + j) % N] = true;
+				resp[(i + j) % N][i] = true;
+
+				if ((i - j) > 0) {
+					resp[i][(i - j) % N] = true;
+					resp[(i - j) % N][i] = true;
+				} else {
+					resp[i][(N + i - j) % N] = true;
+					resp[(N + i - j) % N][i] = true;
+				}
+			}
+		}
+		
+		
+
+		for (int i = 0; i < N; i++) {
+			for (int j = 1; j <= (K / 2); j++) {
+
+				double p = Config.random.nextDouble();
+
+				if (p < beta) {
+					resp[i][(i + j) % N] = false;
+					resp[(i + j) % N][i] = false;
+
+					if ((i - j) > 0) {
+						resp[i][(i - j) % N] = false;
+						resp[(i - j) % N][i] = false;
+					} else {
+						resp[i][(N + i - j) % N] = false;
+						resp[(N + i - j) % N][i] = false;
+					}
+					
+					int novo = i;
+					while(novo == i || resp[i][novo])
+					//while(novo == i)
+						novo = Config.random.nextInt(N);
+					
+					resp[i][novo] = true;
+					resp[novo][i] = true;
+				}
+			}
+		}
+
+		vizinhos = resp;
+	
+	}
+
+	protected void BA(int M) {
 		calculateDemes();
 
 		int numberNodes = numDemes;
-		int m = 2;
+		int m = M;
 		boolean[][] resp = new boolean[numberNodes][numberNodes];
 
 		for (int node = 0; node < numberNodes; node++) {
@@ -174,20 +254,24 @@ public class Metapopulation {
 			sum += fitness[d];
 		}
 
-		System.out.println(Arrays.toString(fitness));
+		//System.out.println(Arrays.toString(fitness));
 	}
 
 	// create demes
 	// TODO
-	public void groupSolutions(SolutionSet set) {
+	public void groupSolutions(SolutionSet set) throws JMException {
 		demes.clear();
-
-		set.sort(new ObjectiveComparator(0));
+/*
+		KNN knn = new KNN();
+		demes = knn.generateByDecision(numDemes, set);*/
+		
+		
+	//	set.sort(new ObjectiveComparator(0));
 
 		int i = set.size();
 		for (int d = 0; d < numDemes; d++) {
-			SolutionSet deme = new SolutionSet(populationSize);
-			for (int j = 0; j < populationSize; j++)
+			SolutionSet deme = new SolutionSet(demeSize);
+			for (int j = 0; j < demeSize; j++)
 				deme.add(set.get(--i));
 			demes.add(deme);
 		}
@@ -200,10 +284,10 @@ public class Metapopulation {
 
 		for (SolutionSet deme : demes) {
 
-			offspringPopulation = new SolutionSet(populationSize);
+			offspringPopulation = new SolutionSet(demeSize);
 			Solution[] parents = new Solution[2];
 
-			for (int i = 0; i < (populationSize / 2); i++) {
+			for (int i = 0; i < (demeSize / 2); i++) {
 
 				parents[0] = (Solution) selection.execute(deme);
 				parents[1] = (Solution) selection.execute(deme);
@@ -227,7 +311,7 @@ public class Metapopulation {
 
 			Ranking ranking = new Ranking(union);
 
-			int remain = populationSize;
+			int remain = demeSize;
 			int index = 0;
 			SolutionSet front = null;
 			deme.clear();
@@ -274,15 +358,15 @@ public class Metapopulation {
 		int archiveSize, maxEvaluations, evaluations;
 		SolutionSet solutionSet, archive, offSpringSolutionSet;
 
-		archiveSize = populationSize * demes.size();
+		archiveSize = demeSize * demes.size();
 
 		// Initialize the variables
-		solutionSet = new SolutionSet(populationSize);
+		solutionSet = new SolutionSet(demeSize);
 		archive = new SolutionSet(archiveSize);
 
 		// -> Create the initial solutionSet
 		Solution newSolution;
-		for (int i = 0; i < populationSize; i++) {
+		for (int i = 0; i < demeSize; i++) {
 			newSolution = new Solution(problem);
 			problem.evaluate(newSolution);
 			problem.evaluateConstraints(newSolution);
@@ -295,9 +379,9 @@ public class Metapopulation {
 		archive = spea.environmentalSelection(archiveSize);
 
 		// Create a new offspringPopulation
-		offSpringSolutionSet = new SolutionSet(populationSize);
+		offSpringSolutionSet = new SolutionSet(demeSize);
 		Solution[] parents = new Solution[2];
-		while (offSpringSolutionSet.size() < populationSize) {
+		while (offSpringSolutionSet.size() < demeSize) {
 			int j = 0;
 			do {
 				j++;
@@ -348,11 +432,12 @@ public class Metapopulation {
 			deme = demes.get(i);
 
 			ArrayList<Integer> vizinhos = getVizinhos(i);
-			double e = vizinhos.size() * tax * deme.size();
+			double e = vizinhos.size() * tax * deme.size();			
 
 			PoissonDistribution poisson = new PoissonDistribution(e);
 			int emigrantes = poisson.inverseCumulativeProbability(Config.random
 					.nextDouble());
+			//System.out.println(e + " - " +  emigrantes);
 			
 			if(emigrantes > deme.size()) emigrantes = deme.size();
 
@@ -427,7 +512,7 @@ public class Metapopulation {
 	}
 
 	public SolutionSet union() {
-		SolutionSet resp = new SolutionSet(demes.size() * populationSize);
+		SolutionSet resp = new SolutionSet(demes.size() * demeSize);
 		for (SolutionSet set : demes) {
 			resp = resp.union(set);
 		}
